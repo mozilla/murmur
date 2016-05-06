@@ -9,5 +9,7 @@ server:
 > git clone git@github.com:mozilla/speecher.git
 > cd speecher
 > npm install
-> node speecher.js
+> mkdir uploads       # create a directory for audio uploads
+> emacs sentences.txt # add some sentences to the config file
+> sudo node speecher.js
 ```
