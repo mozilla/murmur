@@ -1,0 +1,14 @@
+#
+# This is the configuration file for speecher.
+# Blank lines and lines beginning with # are ignored.
+# All other lines should start with a directory name followed
+# by one or more whitespaces and the sentence that we want the user to read.
+# WAV files of those sentences will be saved in uploads/<dirname>/.
+# The lines are split on the first whitespace, so directory names
+# may not contain spaces.
+#
+heyvaani	Hey, Vaani
+goodmorning	Good morning
+goodnight	Good night
+whatsonmyagenda	What's on my agenda?
+howsthecommute	How's the commute?

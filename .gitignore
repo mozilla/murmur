@@ -32,6 +32,5 @@ node_modules
 # Optional REPL history
 .node_repl_history
 
-# Don't check in the config file or uploads dir
-sentences.txt
+# Don't check in the uploads dir
 uploads
