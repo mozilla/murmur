@@ -1,0 +1,124 @@
+<html>
+<head>
+<!-- XXX: do I need a viewport meta tag here? -->
+<script defer src="audiorecorder.js"></script>
+<script defer src="index.js"></script>
+<style>
+  body {
+    font-size: 18px;
+    font-family: sans-serif
+  }
+
+  .screen p {
+    margin: 8px;
+  }
+
+  #consent-screen button {
+    font-size: 18px;
+  }
+
+
+  #error-message {
+    margin: 15px;
+    font-style: italic;
+  }
+
+#instructions {
+  margin: 10px;
+  font-style: italic;
+}
+
+#sentence {
+  font-size: larger;
+  font-weight: bold;
+  margin: 20px;
+}
+
+#canvas {
+  width: 300px;
+  height: 300px;
+}
+#canvas.disabled {
+  background: center center no-repeat url(record.png);
+  opacity: 0.5;
+}
+#canvas.stopped {
+  background: center center no-repeat url(record.png);
+}
+#canvas.recording {
+  background: center center no-repeat url(stop.png);
+}
+
+  #player {
+    margin: 10px;
+  }
+
+  #playback-screen button {
+    font-size: 30px;
+    margin: 10px;
+    padding: 10px;
+  }
+
+  #playback-screen button span.small {
+    font-size: 18px;
+  }
+
+
+</style>
+</head>
+<body>
+  <div id="consent-screen" class="screen" hidden>
+    <p>
+      This website is used by Mozilla engineering to collect speech
+      samples to test and train our speech recognition engine. It
+      collects only speech recordings and does not associate them with
+      any personally identifying information.
+    </p>
+
+    <p>
+      By clicking the "I agree" button below, you are agreeing to
+      donate audio recordings of your voice and to 
+      <a href="https://creativecommons.org/publicdomain/zero/1.0/">
+        place them in the public domain</a>. This means that you agree
+      to <em>waive all rights to the recordings worldwide under copyright
+      and database law, including moral and publicity rights and all
+      related and neighboring rights</em>.
+    </p>
+
+    <button id="disagree">I Disagree</button>
+    <button id="agree">I Agree</button>
+  </div>
+
+  <div id="record-screen" class="screen" hidden>
+    <div id="instructions">
+      Tap the microphone and read this sentence after the beep:
+    </div>
+    <div id="sentence"></div>
+    <canvas id="canvas" class="stopped" width=300 height=300></canvas>
+  </div>
+
+  <div id="playback-screen" class="screen" hidden>
+    <audio id="player" controls autoplay></audio><br/>
+    <button id="upload">
+      Upload audio<br/>
+      <span class="small">and place it in the public domain</span>
+    </button>
+    <br/>
+    <button id="discard">
+      Discard audio<br/>
+      <span class="small">and record another sentence</span>
+    </button>
+    <br/>
+  </div>
+
+  <div id="error-screen" class="screen" hidden>
+    <p>
+      This application cannot run because:
+    </p>
+
+    <p id="error-message"><p>
+
+    <p>Reload if you'd like to try again</p>
+  </div>
+</body>
+</html>
