@@ -25,7 +25,7 @@ var ERR_NO_CONSENT = 'You did not consent to recording. ' +
     'You must click the "I Agree" button in order to use this website.';
 var ERR_NO_GUM = 'Your browser does not support audio recording. ' +
     'Try using a recent version of Firefox or Chrome.';
-var ERR_NO_MIC = 'You did allow this website to use the microphone. ' +
+var ERR_NO_MIC = 'You did not allow this website to use the microphone. ' +
     'The website needs the microphone to record your voice.';
 var ERR_UPLOAD_FAILED = 'Uploading your recording to the server failed. ' +
     'This may be a temporary problem. Please reload and try again.';
