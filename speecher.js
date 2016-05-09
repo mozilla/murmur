@@ -1,8 +1,5 @@
 var fs = require('fs');
-var express = require('express');
-var bodyParser = require('body-parser');
 
-var PORT = 80;                           // What port to listen on
 var uploaddir = __dirname + '/uploads';  // Upload directory
 var directoryToSentence = {};            // dirname to sentence
 var directoryToFileNumber = {};          // dirname to next file number to use
@@ -87,6 +84,30 @@ function readConfigFile() {
 }
 
 function startServer() {
+  // XXX: Remove the .testing() call for production
+  var LEX = require('letsencrypt-express').testing();
+  var http = require('http');
+  var https = require('spdy');
+  var express = require('express');
+  var bodyParser = require('body-parser');
+
+  // Read the server configuration file. It must define
+  // letsEncryptHostname and letsEncryptEmailAddress for the
+  // certificate registration process
+  var config = JSON.parse(fs.readFileSync('server.conf'));
+
+  var lex = LEX.create({
+    configDir: __dirname + '/letsencrypt.conf',
+    approveRegistration: function (hostname, cb) {
+      console.log("approveRegistration:", hostname);
+      cb(null, {
+        domains: [config.letsEncryptHostname],
+        email: config.letsEncryptEmailAddress,
+        agreeTos: true
+      });
+    }
+  });
+
   var app = express();
 
   // Serve static files in the public/ directory
@@ -128,7 +149,16 @@ function startServer() {
     }
   });
 
-  app.listen(PORT, function () {
-    console.log('Listening on port', PORT);
-  });
+  // Redirect all HTTP requests to HTTPS
+  http.createServer(LEX.createAcmeResponder(lex, function(req, res) {
+    res.setHeader('Location', 'https://' + req.headers.host + req.url);
+    res.statusCode = 302;
+    res.end('<!-- Please use https:// links instead -->');
+  })).listen(config.httpPort || 80);
+
+
+  // Handle HTTPs requests using LEX and the Express app defined above
+  https.createServer(lex.httpsOptions,
+                     LEX.createAcmeResponder(lex, app))
+    .listen(config.httpsPort || 443);
 }
