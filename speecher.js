@@ -84,8 +84,7 @@ function readConfigFile() {
 }
 
 function startServer() {
-  // XXX: Remove the .testing() call for production
-  var LEX = require('letsencrypt-express').testing();
+  var LEX = require('letsencrypt-express')/*.testing()*/;
   var http = require('http');
   var https = require('spdy');
   var express = require('express');
