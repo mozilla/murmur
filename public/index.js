@@ -300,7 +300,7 @@ function RecordingScreen(element, microphone) {
         context.close();
         // Chrome is recording a bit of the beep, so delay the resolve
         // a bit. Hopefully this won't clip off any speech
-        setTimeout(resolve, 25);
+        setTimeout(resolve, 40);
       };
     });
   }
