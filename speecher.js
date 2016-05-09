@@ -93,7 +93,14 @@ function startServer() {
   // Read the server configuration file. It must define
   // letsEncryptHostname and letsEncryptEmailAddress for the
   // certificate registration process
-  var config = JSON.parse(fs.readFileSync('server.conf'));
+  try {
+    var config = JSON.parse(fs.readFileSync('server.conf'));
+  }
+  catch(e) {
+    console.error("Failed to read server.conf:", e);
+    console.error("Exiting");
+    process.exit(1);
+  }
 
   var lex = LEX.create({
     configDir: __dirname + '/letsencrypt.conf',
