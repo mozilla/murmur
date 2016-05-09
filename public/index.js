@@ -298,7 +298,9 @@ function RecordingScreen(element, microphone) {
       oscillator.onended = function() {
         oscillator.disconnect();
         context.close();
-        resolve();
+        // Chrome is recording a bit of the beep, so delay the resolve
+        // until the next tick of the event loop and see if that helps
+        setTimeout(resolve);
       };
     });
   }
