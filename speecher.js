@@ -155,6 +155,14 @@ function startServer() {
     }
   });
 
+  // In test mode, just run the app over http to localhost:8000
+  if (process.argv[2] === 'test') {
+    app.listen(8000, function() {
+      console.log("listening on port 8000");
+    });
+    return;
+  }
+
   // Redirect all HTTP requests to HTTPS
   http.createServer(LEX.createAcmeResponder(lex, function(req, res) {
     res.setHeader('Location', 'https://' + req.headers.host + req.url);

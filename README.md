@@ -9,10 +9,9 @@ server:
 > git clone git@github.com:mozilla/speecher.git
 > cd speecher
 > npm install
-> mkdir uploads       # create a directory for audio uploads
-> emacs sentences.txt # add some sentences to the config file
-> emacs server.conf   # define hostname and email address for letsencrypt
-> # This command lets node open ports 80 and 443 without sudo
-> sudo setcap 'cap_net_bind_service=+ep' `which node`
-> node speecher.js
+> emacs server.conf      # define hostname and email address for letsencrypt
+> mkdir uploads          # create a directory for audio uploads
+> emacs sentences.txt    # add some sentences to the config file
+> screen                 # do this so the server will run after logout
+> sudo node speecher.js  # start the server
 ```

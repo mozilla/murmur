@@ -294,12 +294,12 @@ function RecordingScreen(element, microphone) {
       oscillator.connect(context.destination);
       oscillator.frequency.value = hertz;
       oscillator.start();
-      setTimeout(function() {
-        oscillator.stop();
+      oscillator.stop(context.currentTime + duration/1000);
+      oscillator.onended = function() {
         oscillator.disconnect();
         context.close();
         resolve();
-      }, duration);
+      };
     });
   }
 
