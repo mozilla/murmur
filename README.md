@@ -11,5 +11,6 @@ server:
 > npm install
 > mkdir uploads       # create a directory for audio uploads
 > emacs sentences.txt # add some sentences to the config file
+> emacs server.conf   # define hostname and email address for letsencrypt
 > sudo node speecher.js
 ```
