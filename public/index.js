@@ -352,10 +352,9 @@ function RecordingScreen(element, microphone) {
         gain.disconnect();
         context.close();
         // The sound may not have actually stopped playing yet, so
-        // wait a bit longer before calling resolve()
-        context.onstatechange = function() {
-          resolve();
-        };
+        // wait a bit longer before calling resolve(). This is particularly
+        // a problem on Chrome.
+        setTimeout(resolve, 50);
       };
     });
   }
