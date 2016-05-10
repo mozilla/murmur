@@ -4,68 +4,83 @@
   <meta charset="utf-8" />
   <script defer src="audiorecorder.js"></script>
   <script defer src="index.js"></script>
-<style>
-  body {
-    font-size: 18px;
-    font-family: sans-serif
-  }
+  <style>
+    body {
+        font-size: 18px;
+        font-family: sans-serif;
+        max-width: 480px;         /* no wider than 480px, narrower on phones */
+        margin: 20px auto 0 auto; /* center body within window */
+        text-align: center;       /* center text within the body */
+    }
 
-  .screen p {
-    margin: 8px;
-  }
+    .screen p {
+        margin: 8px;
+    }
 
-  #consent-screen button {
-    font-size: 18px;
-  }
+    #consent-screen button {
+        font-size: 18px;
+    }
 
+    #error-message {
+        margin: 15px;
+        font-style: italic;
+    }
 
-  #error-message {
-    margin: 15px;
-    font-style: italic;
-  }
+    table {
+        border-collapse:collapse;
+        margin:10px;
+    }
+    table th {
+        background-color: #ccc;
+        padding: 3px;
+        border: solid black 1px;
+    }
+    table td {
+        padding: 3px 5px 3px 5px;
+        border: solid black 1px;
+    }
 
-#instructions {
-  margin: 10px;
-  font-style: italic;
-}
+    #instructions {
+        margin: 10px;
+        font-style: italic;
+    }
 
-#sentence {
-  font-size: larger;
-  font-weight: bold;
-  margin: 20px;
-}
+    #sentence {
+        font-size: larger;
+        font-weight: bold;
+        margin: 20px;
+    }
 
-#canvas {
-  width: 300px;
-  height: 300px;
-}
-#canvas.disabled {
-  background: center center no-repeat url(record.png);
-  opacity: 0.5;
-}
-#canvas.stopped {
-  background: center center no-repeat url(record.png);
-}
-#canvas.recording {
-  background: center center no-repeat url(stop.png);
-}
+    #canvas {
+        width: 300px;
+        height: 300px;
+        margin: 0 auto 0 auto;
+    }
+    #canvas.disabled {
+        background: center center no-repeat url(record.png);
+        opacity: 0.5;
+    }
+    #canvas.stopped {
+        background: center center no-repeat url(record.png);
+    }
+    #canvas.recording {
+        background: center center no-repeat url(stop.png);
+    }
 
-  #player {
-    margin: 10px;
-  }
+    #player {
+        margin: 10px;
+    }
 
-  #playback-screen button {
-    font-size: 30px;
-    margin: 10px;
-    padding: 10px;
-  }
+    #playback-screen button {
+        font-size: 30px;
+        margin: 10px;
+        padding: 10px;
+    }
 
-  #playback-screen button span.small {
-    font-size: 18px;
-  }
-
-
-</style>
+    #playback-screen button span.small {
+        font-size: 18px;
+    }
+  </style>
 </head>
 <body>
   <div id="consent-screen" class="screen" hidden>
@@ -119,7 +134,19 @@
 
     <p id="error-message"><p>
 
-    <p>Reload if you'd like to try again</p>
+    <p id="error-reload">
+      <button onclick="location.reload()"><b>Reload</b></button>
+      if you'd like to try again
+    </p>
+    <p id="error-supported" hidden>
+      Please try one of these supported browsers:
+      <table>
+        <tr><th>Platform<th>Browser</tr>
+        <tr><td>Desktop<td>Firefox, Chrome</tr>
+        <tr><td>Android<td>Firefox</tr>
+        <tr><td>iPhone, iPad<td>Not supported</tr>
+      </table>
+    </p>
   </div>
 </body>
 </html>

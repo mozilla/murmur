@@ -21,23 +21,44 @@ var STOP_BEEP_HZ = 400;
 var STOP_BEEP_MS = 300;
 
 // These are some things that can go wrong:
+var ERR_PLATFORM = 'Your browser does not support audio recording.';
 var ERR_NO_CONSENT = 'You did not consent to recording. ' +
     'You must click the "I Agree" button in order to use this website.';
-var ERR_NO_GUM = 'Your browser does not support audio recording. ' +
-    'Try using a recent version of Firefox or Chrome.';
 var ERR_NO_MIC = 'You did not allow this website to use the microphone. ' +
     'The website needs the microphone to record your voice.';
 var ERR_UPLOAD_FAILED = 'Uploading your recording to the server failed. ' +
-    'This may be a temporary problem. Please reload and try again.';
+    'This may be a temporary problem. Please try again.';
 
 // This is the program startup sequence.
-getConsent()
+checkPlatformSupport()
+  .then(getConsent)
   .then(getMicrophone)
   .then(rememberMicrophone)
   .then(getSentences)
   .then(parseSentences)
   .then(initializeAndRun)
   .catch(displayErrorMessage);
+
+function checkPlatformSupport() {
+  function isWebAudioSupported() {
+    return typeof window.AudioContext === 'function'
+  }
+
+  function isGetUserMediaSupported() {
+    var gum = (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) ||
+      navigator.getUserMedia ||
+      navigator.webkitGetUserMedia ||
+      navigator.mozGetUserMedia;
+    return typeof gum === 'function';
+  }
+
+  if (!isGetUserMediaSupported() || !isWebAudioSupported()) {
+    return Promise.reject(ERR_PLATFORM);
+  }
+  else {
+    return Promise.resolve(true);
+  }
+}
 
 // Ask the user to agree to place the recordings in the public domain.
 // They only have to agree once, and we remember using localStorage
@@ -84,7 +105,7 @@ function getMicrophone() {
       navigator.mozGetUserMedia({audio:true}, resolve, deny);
     }
     else {
-      reject(ERR_NO_GUM);  // Browser does not support getUserMedia
+      reject(ERR_PLATFORM);  // Browser does not support getUserMedia
     }
   });
 }
@@ -115,6 +136,17 @@ function displayErrorMessage(error) {
   document.querySelector('#consent-screen').hidden = true;
   document.querySelector('#error-screen').hidden = false;
   document.querySelector('#error-message').textContent = error;
+
+  if (error === ERR_PLATFORM) {
+    // Fatal error. Just show a table of supported browsers
+    document.querySelector('#error-reload').hidden = true;
+    document.querySelector('#error-supported').hidden = false;
+  }
+  else {
+    // Otherwise, the user can correct the errror. Invite them to reload
+    document.querySelector('#error-reload').hidden = false;
+    document.querySelector('#error-supported').hidden = true;
+  }
 }
 
 // Once the async initialization is complete, this is where the
