@@ -80,6 +80,10 @@
     #playback-screen button span.small {
         font-size: 18px;
     }
+
+    #playback-screen input {
+      width: 80%;
+    }
   </style>
 </head>
 <body>
@@ -125,6 +129,12 @@
       <span class="small">and record another sentence</span>
     </button>
     <br/>
+    <p>
+      If the recording was too loud or too soft, adjust the microphone
+      sensitivity here. The ideal recording will show large green rings
+      without visible red flashes or audible hissing.
+    </p>
+    <input id="sensitivity" type="range" min="1" max="100"></input>
   </div>
 
   <div id="error-screen" class="screen" hidden>

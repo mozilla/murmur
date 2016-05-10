@@ -1,6 +1,23 @@
 // The microphone stream we get from getUserMedia
 var microphone;
 
+// How much we amplify the signal from the microphone.
+// If we've got a saved value, use that.
+var microphoneGain = parseFloat(localStorage.microphoneGain);
+
+// If no saved value, start with a reasonable default
+// See PlaybackScreen for the code that allows the user to change this
+if (!microphoneGain) {
+  // Need to turn the sensitivity way up on Android
+  if (navigator.userAgent.indexOf('ndroid') !== -1) {
+    microphoneGain = 6;
+  }
+  else {
+    microphoneGain = 2;
+  }
+  localStorage.microphoneGain = microphoneGain
+}
+
 // The sentences we want the user to read and their corresponding
 // server-side directories that we upload them to.  We fetch these
 // from the server. See getSentences() and parseSentences().
@@ -269,7 +286,7 @@ function RecordingScreen(element, microphone) {
       canvas.className = 'disabled'; // disabled 'till after the beep
       beep(RECORD_BEEP_HZ, RECORD_BEEP_MS).then(function() {
         lastSoundTime = performance.now();
-        recorder.start();
+        recorder.start(microphoneGain);
         canvas.className = 'recording';
       });
     }
@@ -319,20 +336,26 @@ function RecordingScreen(element, microphone) {
   };
 
   // A WebAudio utility to do simple beeps
-  function beep(hertz, duration) {
+  function beep(hertz, duration, volume) {
     return new Promise(function(resolve, reject) {
       var context = new AudioContext();
       var oscillator = context.createOscillator();
-      oscillator.connect(context.destination);
+      var gain = context.createGain();
+      oscillator.connect(gain);
+      gain.connect(context.destination);
       oscillator.frequency.value = hertz;
+      gain.gain.value = volume || 0.5; // a little soft by default
       oscillator.start();
       oscillator.stop(context.currentTime + duration/1000);
       oscillator.onended = function() {
         oscillator.disconnect();
+        gain.disconnect();
         context.close();
-        // Chrome is recording a bit of the beep, so delay the resolve
-        // a bit. Hopefully this won't clip off any speech
-        setTimeout(resolve, 40);
+        // The sound may not have actually stopped playing yet, so
+        // wait a bit longer before calling resolve()
+        context.onstatechange = function() {
+          resolve();
+        };
       };
     });
   }
@@ -362,11 +385,17 @@ function RecordingScreen(element, microphone) {
 function PlaybackScreen(element) {
   this.element = element;
   this.player = element.querySelector('#player');
+  this.sensitivity = element.querySelector('#sensitivity');
+  this.sensitivity.onchange = function() {
+    microphoneGain = parseFloat(this.value)/10;
+    localStorage.microphoneGain = microphoneGain;
+  }
 
   this.show = function(recording) {
     this.element.hidden = false;
     this.recording = recording;
     this.player.src = URL.createObjectURL(recording);
+    this.sensitivity.value = microphoneGain * 10;
   };
 
   this.hide = function() {

@@ -25,6 +25,7 @@
   function AudioRecorder(microphone, batchSize) {
     this.context = new AudioContext();
     this.source = this.context.createMediaStreamSource(microphone);
+    this.volume = this.context.createGain();
     this.batchSize = batchSize || 1024;
     // In Firefox we don't need the one output channel, but we need
     // it for Chrome, even though it is unused.
@@ -46,8 +47,12 @@
 
   // The microphone is live the entire time. To start recording we
   // connect the microphone stream to the processor node.
-  AudioRecorder.prototype.start = function() {
-    this.source.connect(this.processor);
+  AudioRecorder.prototype.start = function(gain) {
+    if (gain) {
+      this.volume.gain.value = gain;
+    }
+    this.source.connect(this.volume);
+    this.volume.connect(this.processor);
     // For Chrome we also have to connect the processor to the
     // destination even though the processor does not produce any output
     this.processor.connect(this.context.destination);
@@ -57,6 +62,7 @@
   // Then take the data we stored and convert to a WAV format blob
   AudioRecorder.prototype.stop = function() {
     this.source.disconnect();
+    this.volume.disconnect();
     this.processor.disconnect();
     var batches = this.batches;
     this.batches = [];
