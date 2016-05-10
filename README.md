@@ -15,3 +15,6 @@ server:
 > screen                 # do this so the server will run after logout
 > sudo node speecher.js  # start the server
 ```
+
+For cloud services like AWS, you may also need to take steps to open
+ports 80 and 443 on your server before this code will work
