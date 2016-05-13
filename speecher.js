@@ -127,8 +127,8 @@ function startServer() {
 
   // When we get POSTs, handle the body like this
   app.use(bodyParser.raw({
-    type: 'audio/wav',
-    limit: 2*1024*1024  // max file size 2mb
+    type: 'audio/*',
+    limit: 1*1024*1024  // max file size 1 mb
   }));
 
   // This is how we handle WAV file uploads

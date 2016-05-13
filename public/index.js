@@ -1,22 +1,16 @@
+// These are configurable constants:
+var MIN_DB_LEVEL = -85;      // The dB level that is 0 in the levels display
+var MAX_DB_LEVEL = -30;      // The dB level that is 100% in the levels display
+var LOUD_THRESHOLD = -40;    // Above this dB level we display in red
+var SILENCE_THRESHOLD = -65; // Levels below this db threshold count as silence
+var SILENCE_DURATION = 1.5;  // How many seconds of quiet before stop recording
+var RECORD_BEEP_HZ = 800;    // Frequency and duration of beeps
+var RECORD_BEEP_MS = 200;
+var STOP_BEEP_HZ = 400;
+var STOP_BEEP_MS = 300;
+
 // The microphone stream we get from getUserMedia
 var microphone;
-
-// How much we amplify the signal from the microphone.
-// If we've got a saved value, use that.
-var microphoneGain = parseFloat(localStorage.microphoneGain);
-
-// If no saved value, start with a reasonable default
-// See PlaybackScreen for the code that allows the user to change this
-if (!microphoneGain) {
-  // Need to turn the sensitivity way up on Android
-  if (navigator.userAgent.indexOf('ndroid') !== -1) {
-    microphoneGain = 6;
-  }
-  else {
-    microphoneGain = 2;
-  }
-  localStorage.microphoneGain = microphoneGain
-}
 
 // The sentences we want the user to read and their corresponding
 // server-side directories that we upload them to.  We fetch these
@@ -26,16 +20,6 @@ var sentences = [], directories = [];
 // The sentence we're currently recording, and its directory.
 // These are picked at random in recordingScreen.show()
 var currentSentence, currentDirectory;
-
-// These are configurable constants:
-var SILENCE_THRESHOLD = 0.1; // How quiet does it have to be to stop recording?
-var SILENCE_DURATION = 1500; // For how many milliseconds?
-var LOUD_THRESHOLD = 0.75;   // How loud shows as red in the levels
-var BATCHSIZE = 2048;        // How many samples per recorded batch
-var RECORD_BEEP_HZ = 800;    // Frequency and duration of beeps
-var RECORD_BEEP_MS = 200;
-var STOP_BEEP_HZ = 400;
-var STOP_BEEP_MS = 300;
 
 // These are some things that can go wrong:
 var ERR_PLATFORM = 'Your browser does not support audio recording.';
@@ -69,7 +53,13 @@ function checkPlatformSupport() {
     return typeof gum === 'function';
   }
 
-  if (!isGetUserMediaSupported() || !isWebAudioSupported()) {
+  function isMediaRecorderSupported() {
+    return typeof window.MediaRecorder === 'function';
+  }
+
+  if (!isGetUserMediaSupported() || 
+      !isWebAudioSupported() ||
+      !isMediaRecorderSupported()) {
     return Promise.reject(ERR_PLATFORM);
   }
   else {
@@ -241,35 +231,48 @@ function initializeAndRun() {
 function RecordingScreen(element, microphone) {
   this.element = element;
 
+  // A RecordingScreen object has methods for hiding and showing.
+  // Everything else is private inside this constructor
   this.show = function(sentence) {
     this.element.querySelector('#sentence').textContent = sentence;
     this.element.hidden = false;
+    visualize();
   };
 
   this.hide = function() {
     this.element.hidden = true;
   };
 
-  // This allows us to record audio from the microphone stream.
-  // See audiorecorder.js
-  var recorder = new AudioRecorder(microphone, BATCHSIZE);
+  // Build the WebAudio graph we'll be using
+  var audioContext = new AudioContext();
+  var sourceNode = audioContext.createMediaStreamSource(microphone);
+  var volumeNode = audioContext.createGain();
+  var analyzerNode = audioContext.createAnalyser();
+  var outputNode = audioContext.createMediaStreamDestination();
+  analyzerNode.fftSize = 64;
+  sourceNode.connect(volumeNode);
+  volumeNode.connect(analyzerNode);
+  analyzerNode.connect(outputNode);
+  var recorder = new MediaRecorder(outputNode.stream);
+  recorder.addEventListener('dataavailable', recordingStopped);
 
-  // Most of the state for this class is hidden away here in the constructor
-  // and is not exposed outside of the class.
+  // FFT size 64 gives us 32 bins. But those bins hold frequencies up to
+  // 22kHz or more, and we only care about visualizing lower frequencies
+  // which is where most human voice lies.
+  var frequencyBins = new Float32Array(14);
 
-  // The main part of the recording screen is this canvas object
-  // that displays a microphone icon, acts as a recording level indicator
-  // and responds to clicks to start and stop recording
-  var canvas = element.querySelector('canvas');
-  var context = canvas.getContext('2d');
+  // This canvas object displays the audio levels for the incoming signal
+  var levels = element.querySelector('#levels');
 
   var recording = false;  // Are we currently recording?
   var lastSoundTime;      // When was the last time we heard a sound?
 
-  // The canvas responds to clicks to start and stop recording
-  canvas.addEventListener('click', function() {
-    // Ignore clicks when we're not ready
-    if (canvas.className === 'disabled')
+  var recordButton = element.querySelector('#recordButton');
+
+  // The button responds to clicks to start and stop recording
+  recordButton.addEventListener('click', function() {
+    // Don't respond if we're disabled
+    if (recordButton.className === 'disabled')
       return;
 
     if (recording) {
@@ -280,14 +283,41 @@ function RecordingScreen(element, microphone) {
     }
   });
 
+
+  // How much we amplify the signal from the microphone.
+  // If we've got a saved value, use that.
+  var microphoneGain = parseFloat(localStorage.microphoneGain);
+
+  // If no saved value, start with a reasonable default
+  // See PlaybackScreen for the code that allows the user to change this
+  if (!microphoneGain) {
+    // Need to turn the sensitivity way up on Android
+    if (navigator.userAgent.indexOf('ndroid') !== -1) {
+      microphoneGain = 6;
+    }
+    else {
+      microphoneGain = 2;
+    }
+    localStorage.microphoneGain = microphoneGain
+  }
+
+  var sensitivity = element.querySelector('#sensitivity');
+  sensitivity.onchange = function() {
+    microphoneGain = parseFloat(this.value)/10;
+    volumeNode.gain.value = microphoneGain
+    localStorage.microphoneGain = microphoneGain;
+  };
+  sensitivity.value = microphoneGain * 10;
+  volumeNode.gain.value = microphoneGain;
+
   function startRecording() {
     if (!recording) {
       recording = true;
-      canvas.className = 'disabled'; // disabled 'till after the beep
+      recordButton.className = 'disabled'; // disabled 'till after the beep
       beep(RECORD_BEEP_HZ, RECORD_BEEP_MS).then(function() {
-        lastSoundTime = performance.now();
-        recorder.start(microphoneGain);
-        canvas.className = 'recording';
+        lastSoundTime = audioContext.currentTime;
+        recorder.start();
+        recordButton.className = 'recording';
       });
     }
   }
@@ -295,45 +325,27 @@ function RecordingScreen(element, microphone) {
   function stopRecording() {
     if (recording) {
       recording = false;
-      canvas.className = 'disabled'; // disabled 'till after the beep
-      var blob = recorder.stop();
-      // Beep to tell the user the recording is done
-      beep(STOP_BEEP_HZ, STOP_BEEP_MS).then(function() {
-        canvas.className = 'stopped';
-      });
-      // Erase the canvas
-      displayLevel(0);
-      // Broadcast an event containing the recorded blob
-      element.dispatchEvent(new CustomEvent('record', {
-        detail: blob
-      }));
+      recordButton.className = 'disabled'; // disabled 'till after the beep
+      // XXX this sometimes says
+      // InvalidStateError: An attempt was made to use an object that is not, or is no longer, usable
+      // So maybe recreate the recorder for each invocation?
+      recorder.stop();
+
+      // The line above will trigger the recordingStopped() function below
     }
   }
 
-  // This function is called each time the recorder receives a batch of
-  // audio data. We use this to display recording levels and also to
-  // detect the silence that ends a recording
-  recorder.onbatch = function batchHandler(batch) {
-    // What's the highest amplitude for this batch? (Ignoring negative values)
-    var max = batch.reduce(function(max, val) { return val > max ? val : max; },
-                           0.0);
+  function recordingStopped(event) {
+    // Beep to tell the user the recording is done
+    beep(STOP_BEEP_HZ, STOP_BEEP_MS).then(function() {
+      recordButton.className = '';
+    });
 
-    // If we haven't heard anything in a while, it may be time to
-    // stop recording
-    var now = performance.now();
-    if (max < SILENCE_THRESHOLD) {
-      if (now - lastSoundTime > SILENCE_DURATION) {
-        stopRecording();
-        return;
-      }
-    }
-    else {
-      lastSoundTime = now;
-    }
-
-    // Graphically display this recording level
-    displayLevel(max);
-  };
+    // Broadcast an event containing the recorded blob
+    element.dispatchEvent(new CustomEvent('record', {
+      detail: event.data
+    }));
+  }
 
   // A WebAudio utility to do simple beeps
   function beep(hertz, duration, volume) {
@@ -359,22 +371,67 @@ function RecordingScreen(element, microphone) {
     });
   }
 
-  // Graphically display the recording level
-  function displayLevel(level) {
-    requestAnimationFrame(function() {
-      // Clear the canvas
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      // Do nothing if the level is low
-      if (level < SILENCE_THRESHOLD) return;
-      // Otherwise, draw a circle whose radius and color depends on volume.
-      // The 100 is because we're using a microphone icon that is 95x95
-      var radius = 50 + level * (canvas.width-100) / 2;
-      context.lineWidth = radius/5;
-      context.beginPath();
-      context.arc(canvas.width/2, canvas.height/2, radius, 0, 2*Math.PI);
-      context.strokeStyle = (level > LOUD_THRESHOLD) ? 'red' : 'green';
-      context.stroke();
-    });
+  function visualize() {
+    // Clear the canvas
+    var context = levels.getContext('2d');
+    context.clearRect(0, 0, levels.width, levels.height);
+
+    if (element.hidden) {
+      // If we've been hidden, return right away without calling rAF again.
+      return;
+    }
+
+    // Get the FFT data
+    analyzerNode.getFloatFrequencyData(frequencyBins);
+
+    // Display it as a barchart.
+    // Drop bottom few bins, since they are often misleadingly high
+    var skip = 2;
+    var n = frequencyBins.length - skip;
+    var barwidth = levels.width/n;
+    var maxValue = MIN_DB_LEVEL;
+    var dbRange = (MAX_DB_LEVEL - MIN_DB_LEVEL);
+
+    // Loop through the values and draw the bars
+    // while we're at it, find the maximum value
+    context.fillStyle = 'green';
+    for(var i = 0; i < n; i++) {
+      var value = frequencyBins[i+skip];
+      if (value > maxValue) maxValue = value;
+      var height = levels.height * (value - MIN_DB_LEVEL) / dbRange;
+      context.fillRect(i * barwidth, levels.height - height,
+                       barwidth, height);
+    }
+
+    // loop again and make the top of the bars red for high volumes
+    context.fillStyle = 'red';
+    var thresholdHeight =
+        levels.height * (LOUD_THRESHOLD - MIN_DB_LEVEL) / dbRange;
+    for(var i = 0; i < n; i++) {
+      var value = frequencyBins[i+skip];
+      if (value > LOUD_THRESHOLD) {
+        var height = levels.height * (value - MIN_DB_LEVEL) / dbRange;
+        context.fillRect(i * barwidth, levels.height - height,
+                         barwidth, height - thresholdHeight);
+      }
+    }
+
+    // If we are currently recording, then test to see if the user has
+    // been silent for long enough that we should stop recording
+    if (recording) {
+      var now = audioContext.currentTime;
+      if (maxValue < SILENCE_THRESHOLD) {
+        if (now - lastSoundTime > SILENCE_DURATION) {
+          stopRecording();
+        }
+      }
+      else {
+        lastSoundTime = now;
+      }
+    }
+
+    // Update the visualization the next time we can
+    requestAnimationFrame(visualize);
   }
 }
 
@@ -384,17 +441,11 @@ function RecordingScreen(element, microphone) {
 function PlaybackScreen(element) {
   this.element = element;
   this.player = element.querySelector('#player');
-  this.sensitivity = element.querySelector('#sensitivity');
-  this.sensitivity.onchange = function() {
-    microphoneGain = parseFloat(this.value)/10;
-    localStorage.microphoneGain = microphoneGain;
-  }
 
   this.show = function(recording) {
     this.element.hidden = false;
     this.recording = recording;
     this.player.src = URL.createObjectURL(recording);
-    this.sensitivity.value = microphoneGain * 10;
   };
 
   this.hide = function() {

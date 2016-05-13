@@ -2,7 +2,6 @@
 <head>
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
   <meta charset="utf-8" />
-  <script defer src="audiorecorder.js"></script>
   <script defer src="index.js"></script>
   <style>
     body {
@@ -51,20 +50,26 @@
         margin: 20px;
     }
 
-    #canvas {
-        width: 300px;
-        height: 300px;
-        margin: 0 auto 0 auto;
-    }
-    #canvas.disabled {
+    #recordButton {
+        width: 100px;
+        height: 100px;
         background: center center no-repeat url(record.png);
+    }
+    #recordButton.disabled {
         opacity: 0.5;
     }
-    #canvas.stopped {
-        background: center center no-repeat url(record.png);
-    }
-    #canvas.recording {
+    #recordButton.recording {
         background: center center no-repeat url(stop.png);
+    }
+
+    #sensitivity {
+      width: 80%;
+    }
+
+    #levels {
+        width: 300px;
+        height: 200px;
+        margin: 0 auto 0 auto;
     }
 
     #player {
@@ -79,10 +84,6 @@
 
     #playback-screen button span.small {
         font-size: 18px;
-    }
-
-    #playback-screen input {
-      width: 80%;
     }
   </style>
 </head>
@@ -114,7 +115,13 @@
       Tap the microphone and read this sentence after the beep:
     </div>
     <div id="sentence"></div>
-    <canvas id="canvas" class="stopped" width=300 height=300></canvas>
+    <button id="recordButton" class="stopped"></button>
+    <br/>
+    <canvas id="levels"width=300 height=200></canvas>
+    <p>
+      Microphone sensitivity:
+    </p>
+    <input id="sensitivity" type="range" min="1" max="100"></input>
   </div>
 
   <div id="playback-screen" class="screen" hidden>
@@ -128,13 +135,6 @@
       Discard audio<br/>
       <span class="small">and record another sentence</span>
     </button>
-    <br/>
-    <p>
-      If the recording was too loud or too soft, adjust the microphone
-      sensitivity here. The ideal recording will show large green rings
-      without visible red flashes or audible hissing.
-    </p>
-    <input id="sensitivity" type="range" min="1" max="100"></input>
   </div>
 
   <div id="error-screen" class="screen" hidden>
