@@ -350,19 +350,19 @@ function RecordingScreen(element, microphone) {
   // A WebAudio utility to do simple beeps
   function beep(hertz, duration, volume) {
     return new Promise(function(resolve, reject) {
-      var context = new AudioContext();
-      var oscillator = context.createOscillator();
-      var gain = context.createGain();
+//      var context = new AudioContext();
+      var oscillator = audioContext.createOscillator();
+      var gain = audioContext.createGain();
       oscillator.connect(gain);
-      gain.connect(context.destination);
+      gain.connect(audioContext.destination);
       oscillator.frequency.value = hertz;
       gain.gain.value = volume || 0.5; // a little soft by default
       oscillator.start();
-      oscillator.stop(context.currentTime + duration/1000);
+      oscillator.stop(audioContext.currentTime + duration/1000);
       oscillator.onended = function() {
         oscillator.disconnect();
         gain.disconnect();
-        context.close();
+        //context.close();
         // The sound may not have actually stopped playing yet, so
         // wait a bit longer before calling resolve(). This is particularly
         // a problem on Chrome.
