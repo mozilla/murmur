@@ -62,10 +62,10 @@ function readConfigFile() {
       if (fs.existsSync(dirname)) {
         // Directory exists. Go find out what the next filenumber is
         var filenumbers =
-            fs.readdirSync(dirname)                             // all files
-            .filter(function(f) { return f.match(/\d+\.wav/);}) // only .wav
-            .map(function(f) { return parseInt(f); })           // to number
-            .sort(function(a,b) { return b - a; });             // largest first
+            fs.readdirSync(dirname)                         // all files
+            .filter(function(f) { return f.match(/^\d+/);}) // starting with #
+            .map(function(f) { return parseInt(f); })       // convert to number
+            .sort(function(a,b) { return b - a; });         // largest first
         directoryToFileNumber[directory] = (filenumbers[0] + 1) || 0;
       }
       else {
@@ -127,8 +127,8 @@ function startServer() {
 
   // When we get POSTs, handle the body like this
   app.use(bodyParser.raw({
-    type: 'audio/wav',
-    limit: 2*1024*1024  // max file size 2mb
+    type: 'audio/*',
+    limit: 1*1024*1024  // max file size 1 mb
   }));
 
   // This is how we handle WAV file uploads
@@ -139,7 +139,13 @@ function startServer() {
       directoryToFileNumber[dir] = filenumber + 1;
       var filename = String(filenumber);
       while(filename.length < 4) filename = '0' + filename;
-      var path = uploaddir + '/' + dir + '/' + filename + '.wav';
+
+      var extension = '.ogg';  // Firefox gives us opus in ogg
+      if (request.headers['content-type'].startsWith('audio/webm')) {
+        extension = '.webm';   // Chrome gives us opus in webm
+      }
+
+      var path = uploaddir + '/' + dir + '/' + filename + extension;
       fs.writeFile(path, request.body, {}, function(err) {
         response.send('Thanks for your contribution!');
         if (err) {

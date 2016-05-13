@@ -1,4 +1,4 @@
-# speecher
+# Murmur
 This is a simple webapp for collecting speech samples for voice
 recognition testing and training.
 
