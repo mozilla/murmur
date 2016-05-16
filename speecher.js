@@ -63,7 +63,7 @@ function readConfigFile() {
         // Directory exists. Go find out what the next filenumber is
         var filenumbers =
             fs.readdirSync(dirname)                             // all files
-            .filter(function(f) { return f.match(/\d+\.opus/);}) // only .opus
+            .filter(function(f) { return f.match(/\d+\.(opus|webm|wav)/);}) 
             .map(function(f) { return parseInt(f); })           // to number
             .sort(function(a,b) { return b - a; });             // largest first
         directoryToFileNumber[directory] = (filenumbers[0] + 1) || 0;
@@ -139,7 +139,13 @@ function startServer() {
       directoryToFileNumber[dir] = filenumber + 1;
       var filename = String(filenumber);
       while(filename.length < 4) filename = '0' + filename;
-      var path = uploaddir + '/' + dir + '/' + filename + '.opus';
+
+      var extension = '.ogg';  // Firefox gives us opus in ogg
+      if (request.headers['content-type'].startsWith('audio/webm')) {
+        extension = '.webm';   // Chrome gives us opus in webm
+      }
+
+      var path = uploaddir + '/' + dir + '/' + filename + extension;
       fs.writeFile(path, request.body, {}, function(err) {
         response.send('Thanks for your contribution!');
         if (err) {

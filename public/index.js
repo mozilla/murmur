@@ -4,10 +4,8 @@ var MAX_DB_LEVEL = -30;      // The dB level that is 100% in the levels display
 var LOUD_THRESHOLD = -40;    // Above this dB level we display in red
 var SILENCE_THRESHOLD = -65; // Levels below this db threshold count as silence
 var SILENCE_DURATION = 1.5;  // How many seconds of quiet before stop recording
-var RECORD_BEEP_HZ = 800;    // Frequency and duration of beeps
-var RECORD_BEEP_MS = 200;
-var STOP_BEEP_HZ = 400;
-var STOP_BEEP_MS = 300;
+var STOP_BEEP_HZ = 440;      // Frequency and duration of beep
+var STOP_BEEP_S = .3;
 
 // The microphone stream we get from getUserMedia
 var microphone;
@@ -206,6 +204,11 @@ function initializeAndRun() {
 
   // Upload a recording using the fetch API to do an HTTP POST
   function upload(directory, recording) {
+    if (!recording.type) {
+      // Chrome doesn't give the blob a type
+      recording = new Blob([recording], {type:'audio/webm;codecs=opus'});
+    }
+
     fetch('/upload/' + directory, { method: 'POST', body: recording })
       .then(function(response) {
         if (response.status !== 200) {
@@ -249,17 +252,28 @@ function RecordingScreen(element, microphone) {
   var volumeNode = audioContext.createGain();
   var analyzerNode = audioContext.createAnalyser();
   var outputNode = audioContext.createMediaStreamDestination();
-  analyzerNode.fftSize = 64;
+  // make sure we're doing mono everywhere
+  sourceNode.channelCount = 1;
+  volumeNode.channelCount = 1;
+  analyzerNode.channelCount = 1;
+  outputNode.channelCount = 1;
+  // connect the nodes together
   sourceNode.connect(volumeNode);
   volumeNode.connect(analyzerNode);
   analyzerNode.connect(outputNode);
+  // and set up the recorder
   var recorder = new MediaRecorder(outputNode.stream);
-  recorder.addEventListener('dataavailable', recordingStopped);
 
+  // Set up the analyzer node, and allocate an array for its data
   // FFT size 64 gives us 32 bins. But those bins hold frequencies up to
   // 22kHz or more, and we only care about visualizing lower frequencies
-  // which is where most human voice lies.
+  // which is where most human voice lies, so we use fewer bins
+  analyzerNode.fftSize = 64;
   var frequencyBins = new Float32Array(14);
+
+  // Another audio node used by the beep() function
+  var beeperVolume = audioContext.createGain();
+  beeperVolume.connect(audioContext.destination);
 
   // This canvas object displays the audio levels for the incoming signal
   var levels = element.querySelector('#levels');
@@ -282,7 +296,6 @@ function RecordingScreen(element, microphone) {
       startRecording();
     }
   });
-
 
   // How much we amplify the signal from the microphone.
   // If we've got a saved value, use that.
@@ -311,62 +324,61 @@ function RecordingScreen(element, microphone) {
   volumeNode.gain.value = microphoneGain;
 
   function startRecording() {
+    // I wanted to do a beep to indicate the start of recording
+    // But it was too hard to not record the end of the beep,
+    // particularly on Chrome.
     if (!recording) {
       recording = true;
-      recordButton.className = 'disabled'; // disabled 'till after the beep
-      beep(RECORD_BEEP_HZ, RECORD_BEEP_MS).then(function() {
-        lastSoundTime = audioContext.currentTime;
-        recorder.start();
-        recordButton.className = 'recording';
-      });
+      lastSoundTime = audioContext.currentTime;
+
+      // We want to be able to record up to 60s of audio in a single blob.
+      // Without this argument to start(), Chrome will call dataavailable
+      // very frequently.
+      recorder.start(60000);
+      //recordButton.className = 'recording';
+      document.body.className = 'recording';
     }
   }
 
   function stopRecording() {
     if (recording) {
       recording = false;
+      document.body.className = '';
       recordButton.className = 'disabled'; // disabled 'till after the beep
-      // XXX this sometimes says
-      // InvalidStateError: An attempt was made to use an object that is not, or is no longer, usable
-      // So maybe recreate the recorder for each invocation?
+      recorder.ondataavailable = function(event) {
+        // Only call us once
+        recorder.ondataavailable = null;
+
+        // Beep to tell the user the recording is done
+        beep(STOP_BEEP_HZ, STOP_BEEP_S).then(function() {
+          // Broadcast an event containing the recorded blob
+          // This will switch to the playback screen
+          element.dispatchEvent(new CustomEvent('record', {
+            detail: event.data
+          }));
+
+          recordButton.className = '';
+        });
+      };
+
       recorder.stop();
-
-      // The line above will trigger the recordingStopped() function below
     }
-  }
-
-  function recordingStopped(event) {
-    // Beep to tell the user the recording is done
-    beep(STOP_BEEP_HZ, STOP_BEEP_MS).then(function() {
-      recordButton.className = '';
-    });
-
-    // Broadcast an event containing the recorded blob
-    element.dispatchEvent(new CustomEvent('record', {
-      detail: event.data
-    }));
   }
 
   // A WebAudio utility to do simple beeps
   function beep(hertz, duration, volume) {
     return new Promise(function(resolve, reject) {
-//      var context = new AudioContext();
-      var oscillator = audioContext.createOscillator();
-      var gain = audioContext.createGain();
-      oscillator.connect(gain);
-      gain.connect(audioContext.destination);
-      oscillator.frequency.value = hertz;
-      gain.gain.value = volume || 0.5; // a little soft by default
-      oscillator.start();
-      oscillator.stop(audioContext.currentTime + duration/1000);
-      oscillator.onended = function() {
-        oscillator.disconnect();
-        gain.disconnect();
-        //context.close();
-        // The sound may not have actually stopped playing yet, so
-        // wait a bit longer before calling resolve(). This is particularly
-        // a problem on Chrome.
-        setTimeout(resolve, 50);
+      var beeper = audioContext.createOscillator();
+      var startTime = audioContext.currentTime;
+      var endTime = startTime + duration;
+      beeper.connect(beeperVolume);
+      beeper.frequency.value = hertz;
+      beeperVolume.gain.value = volume || 0.3 ; // soft by default
+      beeper.start();
+      beeper.stop(endTime);
+      beeper.onended = function() {
+        beeper.disconnect();
+        resolve();
       };
     });
   }
@@ -453,7 +465,7 @@ function PlaybackScreen(element) {
     this.recording = null;
     if (this.player.src) {
       URL.revokeObjectURL(this.player.src);
-      delete this.player.src;
+      this.player.src = "";
       this.player.load();
     }
   };
