@@ -62,10 +62,10 @@ function readConfigFile() {
       if (fs.existsSync(dirname)) {
         // Directory exists. Go find out what the next filenumber is
         var filenumbers =
-            fs.readdirSync(dirname)                             // all files
-            .filter(function(f) { return f.match(/\d+\.(opus|webm|wav)/);}) 
-            .map(function(f) { return parseInt(f); })           // to number
-            .sort(function(a,b) { return b - a; });             // largest first
+            fs.readdirSync(dirname)                         // all files
+            .filter(function(f) { return f.match(/^\d+/);}) // starting with #
+            .map(function(f) { return parseInt(f); })       // convert to number
+            .sort(function(a,b) { return b - a; });         // largest first
         directoryToFileNumber[directory] = (filenumbers[0] + 1) || 0;
       }
       else {
