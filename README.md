@@ -6,14 +6,14 @@ Running it should be as simple as issuing these commands on your
 server:
 
 ```
-> git clone git@github.com:mozilla/speecher.git
-> cd speecher
+> git clone git@github.com:mozilla/murmur.git
+> cd murmur
 > npm install
 > emacs server.conf      # define hostname and email address for letsencrypt
 > mkdir uploads          # create a directory for audio uploads
 > emacs sentences.txt    # add some sentences to the config file
 > screen                 # do this so the server will run after logout
-> sudo node speecher.js  # start the server
+> sudo node murmur.js    # start the server
 ```
 
 For cloud services like AWS, you may also need to take steps to open

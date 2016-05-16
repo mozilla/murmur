@@ -1,12 +1,12 @@
 {
-  "name": "speecher",
+  "name": "murmur",
   "version": "1.0.0",
   "description": "collect recorded speech samples from users",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mozilla/speecher"
+    "url": "https://github.com/mozilla/murmur"
   },
-  "main": "speecher.js",
+  "main": "murmur.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
