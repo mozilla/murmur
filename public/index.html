@@ -2,92 +2,141 @@
 <head>
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
   <meta charset="utf-8" />
-  <script defer src="audiorecorder.js"></script>
+  <title>Murmur</title>
   <script defer src="index.js"></script>
   <style>
-    body {
-        font-size: 18px;
-        font-family: sans-serif;
-        max-width: 480px;         /* no wider than 480px, narrower on phones */
-        margin: 20px auto 0 auto; /* center body within window */
-        text-align: center;       /* center text within the body */
-    }
+body {
+    font-size: 18px;
+    font-family: sans-serif;
+    max-width: 480px;         /* no wider than 480px, narrower on phones */
+    margin: 20px auto 0 auto; /* center body within window */
+    text-align: center;       /* center text within the body */
+}
 
-    .screen p {
-        margin: 8px;
-    }
+.screen p {
+    margin: 8px;
+}
 
-    #consent-screen button {
-        font-size: 18px;
-    }
+#consent-screen button {
+    font-size: 18px;
+}
 
-    #error-message {
-        margin: 15px;
-        font-style: italic;
-    }
+#error-message {
+    margin: 15px;
+    font-style: italic;
+}
 
-    table {
-        border-collapse:collapse;
-        margin:10px auto 0 auto;
-    }
-    table th {
-        background-color: #ccc;
-        padding: 3px;
-        border: solid black 1px;
-    }
-    table td {
-        padding: 3px 5px 3px 5px;
-        border: solid black 1px;
-    }
+table {
+    border-collapse:collapse;
+    margin:10px auto 0 auto;
+}
+table th {
+    background-color: #ccc;
+    padding: 3px;
+    border: solid black 1px;
+}
+table td {
+    padding: 3px 5px 3px 5px;
+    border: solid black 1px;
+}
 
-    #instructions {
-        margin: 10px;
-        font-style: italic;
-    }
+#instructions {
+    margin: 10px;
+    font-style: italic;
+}
 
-    #sentence {
-        font-size: larger;
-        font-weight: bold;
-        margin: 20px;
-    }
+#sentence {
+    font-size: larger;
+    font-weight: bold;
+    margin: 20px;
+}
 
-    #canvas {
-        width: 300px;
-        height: 300px;
-        margin: 0 auto 0 auto;
-    }
-    #canvas.disabled {
-        background: center center no-repeat url(record.png);
-        opacity: 0.5;
-    }
-    #canvas.stopped {
-        background: center center no-repeat url(record.png);
-    }
-    #canvas.recording {
-        background: center center no-repeat url(stop.png);
-    }
+#recordButton {
+    font-size:larger;
+    font-weight: bold;
+    box-sizing: border-box;
+    width: 100px;
+    height: 100px;
+    margin: auto;
+    background-color: red;
+    border: solid black 4px;
+    border-radius: 50%;
+    transition: 100ms linear border-radius;
+}
+#recordButton:after {
+    content:'Record';
+    line-height:95px;
+}
 
-    #player {
-        margin: 10px;
-    }
+#recordButton.disabled {
+    opacity: 0.5;
+}
 
-    #playback-screen button {
-        font-size: 30px;
-        margin: 10px;
-        padding: 10px;
-    }
+body.recording #recordButton {
+    border-radius: 10px;
+    width:85px;
+    height:85px;
+}
+body.recording #recordButton:after {
+    content:'Stop';
+    line-height: 80px;
+}
 
-    #playback-screen button span.small {
-        font-size: 18px;
-    }
+#recording-indicator {
+    display:inline-block;
+    width:15px;
+    height:15px;
+    background:red;
+    border-radius:50%;
+    opacity:0;
+}
 
-    #playback-screen input {
-      width: 80%;
+body.recording #recording-indicator {
+    animation-name:blink;
+    animation-duration:1s;
+    animation-iteration-count:infinite;
+}
+
+@keyframes blink {
+    from {
+        opacity:1;
     }
+    50% {
+        opacity:0;
+    }
+    to {
+        opacity:1;
+    }
+}
+
+#sensitivity {
+    width: 80%;
+}
+
+#levels {
+    width: 300px;
+    height: 150px;
+    margin: 0 auto 0 auto;
+}
+
+#player {
+    margin: 10px;
+}
+
+#playback-screen button {
+    font-size: 30px;
+    margin: 10px;
+    padding: 10px;
+}
+
+#playback-screen button span.small {
+    font-size: 18px;
+}
   </style>
 </head>
 <body>
   <div id="consent-screen" class="screen" hidden>
+    <h1>Murmur</h1>
     <p>
       This website is used by Mozilla engineering to collect speech
       samples to test and train our speech recognition engine. It
@@ -111,10 +160,17 @@
 
   <div id="record-screen" class="screen" hidden>
     <div id="instructions">
-      Tap the microphone and read this sentence after the beep:
+      <div id="recording-indicator"></div>
+      Tap the record button and read this sentence:
     </div>
     <div id="sentence"></div>
-    <canvas id="canvas" class="stopped" width=300 height=300></canvas>
+    <div id="recordButton" class="stopped"></div>
+    <br/>
+    <canvas id="levels" width=300 height=150></canvas>
+    <p>
+      Microphone sensitivity:
+    </p>
+    <input id="sensitivity" type="range" min="1" max="100"></input>
   </div>
 
   <div id="playback-screen" class="screen" hidden>
@@ -128,16 +184,10 @@
       Discard audio<br/>
       <span class="small">and record another sentence</span>
     </button>
-    <br/>
-    <p>
-      If the recording was too loud or too soft, adjust the microphone
-      sensitivity here. The ideal recording will show large green rings
-      without visible red flashes or audible hissing.
-    </p>
-    <input id="sensitivity" type="range" min="1" max="100"></input>
   </div>
 
   <div id="error-screen" class="screen" hidden>
+    <h1>Murmur</h1>
     <p>
       This application cannot run because:
     </p>
