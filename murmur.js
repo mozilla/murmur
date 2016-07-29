@@ -104,13 +104,15 @@ function startServer() {
 
   var lex = LEX.create({
     configDir: __dirname + '/letsencrypt.conf',
-    approveRegistration: function (hostname, cb) {
+    approveRegistration: function (hostname, approve) {
       console.log("approveRegistration:", hostname);
-      cb(null, {
-        domains: [config.letsEncryptHostname],
-        email: config.letsEncryptEmailAddress,
-        agreeTos: true
-      });
+      if (hostname === config.letsEncryptHostname) {
+        approve(null, {
+          domains: [config.letsEncryptHostname],
+          email: config.letsEncryptEmailAddress,
+          agreeTos: true
+        });
+      }
     }
   });
 
