@@ -6,6 +6,7 @@ var SILENCE_THRESHOLD = -65; // Levels below this db threshold count as silence
 var SILENCE_DURATION = 1.5;  // How many seconds of quiet before stop recording
 var STOP_BEEP_HZ = 440;      // Frequency and duration of beep
 var STOP_BEEP_S = .3;
+var rightside = true;
 
 // The microphone stream we get from getUserMedia
 var microphone;
@@ -31,6 +32,7 @@ var ERR_UPLOAD_FAILED = 'Uploading your recording to the server failed. ' +
 // This is the program startup sequence.
 checkPlatformSupport()
   .then(getConsent)
+  .then(getUserInfo)
   .then(getMicrophone)
   .then(rememberMicrophone)
   .then(getSentences)
@@ -65,7 +67,7 @@ function checkPlatformSupport() {
   }
 }
 
-// Ask the user to agree to place the recordings in the public domain.
+// Askz the user to agree to place the recordings in the public domain.
 // They only have to agree once, and we remember using localStorage
 function getConsent() {
   return new Promise(function(resolve, reject) {
@@ -82,9 +84,24 @@ function getConsent() {
       consentScreen.hidden = true;
       resolve();
     };
-    document.querySelector('#disagree').onclick = function() {
-      consentScreen.hidden = true;
-      reject(ERR_NO_CONSENT);
+  });
+}
+
+function getUserInfo(){
+  return new Promise(function(resolve, reject) {
+    // If the user has already send info, then we're done
+    if (localStorage.getUserInfoGiven) {
+      resolve();
+      return;
+    }
+
+    // Otherwise, display the data screen and wait for a response
+    var dataScreen = document.querySelector('#data-screen');
+    dataScreen.hidden = false;
+    document.querySelector('#datasubmit').onclick = function() {
+      localStorage.getUserInfoGiven = true;  // Remember profile was already sent
+      dataScreen.hidden = true;
+      resolve();
     };
   });
 }
@@ -161,29 +178,26 @@ function displayErrorMessage(error) {
 function initializeAndRun() {
   // Get the DOM elements for the recording and playback screens
   var recordingScreenElement = document.querySelector('#record-screen');
-  var playbackScreenElement = document.querySelector('#playback-screen');
 
   // Create objects that encapsulate their functionality
   // Then set up event handlers to coordinate the two screens
   var recordingScreen = new RecordingScreen(recordingScreenElement, microphone);
-  var playbackScreen = new PlaybackScreen(playbackScreenElement);
 
   // When a recording is complete, pass it to the playback screen
   recordingScreenElement.addEventListener('record', function(event) {
-    recordingScreen.hide();
-    playbackScreen.show(event.detail);
+    recordingScreen.play(event.detail);
   });
 
   // If the user clicks 'Upload' on the playback screen, do the upload
   // and switch back to the recording screen for a new sentence
-  playbackScreenElement.addEventListener('upload', function(event) {
+  recordingScreenElement.addEventListener('upload', function(event) {
     upload(currentDirectory, event.detail);
     switchToRecordingScreen(true);
   });
 
   // If the user clicks 'Discard', switch back to the recording screen
   // for another take of the same sentence
-  playbackScreenElement.addEventListener('discard', function() {
+  recordingScreenElement.addEventListener('discard', function() {
     switchToRecordingScreen(false);
   });
 
@@ -198,7 +212,6 @@ function initializeAndRun() {
 
     // Hide the playback screen (and release its audio) if it was displayed
     // Show the recording screen
-    playbackScreen.hide();
     recordingScreen.show(currentSentence);
   }
 
@@ -212,15 +225,12 @@ function initializeAndRun() {
     fetch('/upload/' + directory, { method: 'POST', body: recording })
       .then(function(response) {
         if (response.status !== 200) {
-          playbackScreen.hide();
-          recordingScreen.hide();
           displayErrorMessage(ERR_UPLOAD_FAILED + ' ' + response.status + ' ' +
                               response.statusText);
         }
       })
       .catch(function() {
-        playbackScreen.hide();
-        recordingScreen.hide();
+
         displayErrorMessage(ERR_UPLOAD_FAILED);
       });
   }
@@ -233,17 +243,30 @@ function initializeAndRun() {
 // a 'record' event on its DOM element when a recording has been made.
 function RecordingScreen(element, microphone) {
   this.element = element;
+  this.player = element.querySelector('#player');
 
   // A RecordingScreen object has methods for hiding and showing.
   // Everything else is private inside this constructor
   this.show = function(sentence) {
-    this.element.querySelector('#sentence').textContent = sentence;
+    clockreset();
+    this.element.querySelector('#sentence').textContent = '"' + sentence + '"';
     this.element.hidden = false;
     visualize();
   };
 
-  this.hide = function() {
+  this.play = function(recording) {
+    this.recording = recording;
+    this.player.src = URL.createObjectURL(recording);
+  };
+
+  this.discards = function() {
     this.element.hidden = true;
+    this.recording = null;
+    if (this.player.src) {
+      URL.revokeObjectURL(this.player.src);
+      this.player.src = "";
+      this.player.load();
+    }
   };
 
   // Build the WebAudio graph we'll be using
@@ -282,13 +305,14 @@ function RecordingScreen(element, microphone) {
   var lastSoundTime;      // When was the last time we heard a sound?
 
   var recordButton = element.querySelector('#recordButton');
+  var playButton = element.querySelector('#playButton');
+  var uploadButton = element.querySelector('#uploadButton');
 
   // The button responds to clicks to start and stop recording
   recordButton.addEventListener('click', function() {
     // Don't respond if we're disabled
     if (recordButton.className === 'disabled')
       return;
-
     if (recording) {
       stopRecording();
     }
@@ -328,6 +352,8 @@ function RecordingScreen(element, microphone) {
     // But it was too hard to not record the end of the beep,
     // particularly on Chrome.
     if (!recording) {
+      document.querySelector('#levels').hidden = false;
+      clockstart();
       recording = true;
       lastSoundTime = audioContext.currentTime;
 
@@ -342,6 +368,8 @@ function RecordingScreen(element, microphone) {
 
   function stopRecording() {
     if (recording) {
+      document.querySelector('#levels').hidden = true;
+      clockstop();
       recording = false;
       document.body.className = '';
       recordButton.className = 'disabled'; // disabled 'till after the beep
@@ -403,18 +431,54 @@ function RecordingScreen(element, microphone) {
     var barwidth = levels.width/n;
     var maxValue = MIN_DB_LEVEL;
     var dbRange = (MAX_DB_LEVEL - MIN_DB_LEVEL);
-
     // Loop through the values and draw the bars
     // while we're at it, find the maximum value
-    context.fillStyle = 'green';
+    rightside = !rightside;
+
     for(var i = 0; i < n; i++) {
       var value = frequencyBins[i+skip];
-      if (value > maxValue) maxValue = value;
+      if (value > maxValue) {
+        maxValue = value;
+      }
       var height = levels.height * (value - MIN_DB_LEVEL) / dbRange;
-      context.fillRect(i * barwidth, levels.height - height,
+      if (height < 0 )
+        continue;
+
+      // calculate height
+      var total;
+      var inverso;
+      total = levels.height - height - 50;
+      inverso = total + height;
+
+      // here other side
+      var x_bar = i * barwidth;
+      /*
+      if (rightside) {
+        console.log('rightside');
+      } else {
+        console.log('not rightside');
+      }
+*/
+      context.fillStyle = 'black';
+      context.fillRect(x_bar, total,
                        barwidth, height);
+      context.fillStyle = 'white';
+      context.fillRect(x_bar+25, total,
+          barwidth, height);
+
+
+      context.fillStyle = 'black';
+      context.fillRect(x_bar, inverso,
+          barwidth, height);
+      context.fillStyle = 'white';
+      context.fillRect(x_bar+25, inverso,
+          barwidth, height+20);
+
+
+      //console.log(n, levels.height ,height,total, inverso);
     }
 
+    /*
     // loop again and make the top of the bars red for high volumes
     context.fillStyle = 'red';
     var thresholdHeight =
@@ -427,6 +491,7 @@ function RecordingScreen(element, microphone) {
                          barwidth, height - thresholdHeight);
       }
     }
+*/
 
     // If we are currently recording, then test to see if the user has
     // been silent for long enough that we should stop recording
@@ -445,36 +510,61 @@ function RecordingScreen(element, microphone) {
     // Update the visualization the next time we can
     requestAnimationFrame(visualize);
   }
-}
 
-// This simple class encapsulates the playback screen. It has
-// show and hide methods, and fires 'upload' and 'discard' events
-// depending on which button is clicked.
-function PlaybackScreen(element) {
-  this.element = element;
-  this.player = element.querySelector('#player');
-
-  this.show = function(recording) {
-    this.element.hidden = false;
-    this.recording = recording;
-    this.player.src = URL.createObjectURL(recording);
-  };
-
-  this.hide = function() {
-    this.element.hidden = true;
-    this.recording = null;
-    if (this.player.src) {
-      URL.revokeObjectURL(this.player.src);
-      this.player.src = "";
-      this.player.load();
-    }
-  };
-
-  element.querySelector('#upload').addEventListener('click', function() {
+  uploadButton.addEventListener('click', function() {
     element.dispatchEvent(new CustomEvent('upload', {detail: this.recording}));
   }.bind(this));
 
-  element.querySelector('#discard').addEventListener('click', function() {
-    element.dispatchEvent(new CustomEvent('discard'));
-  });
+  playButton.addEventListener('click', function() {
+    this.player.play();
+  }.bind(this));
+
+
+// CLOCK!
+  var timeBegan = null
+      , timeStopped = null
+      , stoppedDuration = 0
+      , started = null;
+
+  function clockstart() {
+    clockreset();
+    if (timeBegan === null) {
+      timeBegan = new Date();
+    }
+
+    if (timeStopped !== null) {
+      stoppedDuration += (new Date() - timeStopped);
+    }
+    started = setInterval(clockRunning, 10);
+  }
+
+  function clockstop() {
+    timeStopped = new Date();
+    clearInterval(started);
+  }
+
+  function clockreset() {
+    clearInterval(started);
+    stoppedDuration = 0;
+    timeBegan = null;
+    timeStopped = null;
+    document.getElementById("elapsedtime").innerHTML = "00:00.000";
+  }
+
+  function clockRunning(){
+    var currentTime = new Date()
+        , timeElapsed = new Date(currentTime - timeBegan - stoppedDuration)
+        , hour = timeElapsed.getUTCHours()
+        , min = timeElapsed.getUTCMinutes()
+        , sec = timeElapsed.getUTCSeconds()
+        , ms = timeElapsed.getUTCMilliseconds();
+
+    document.getElementById("elapsedtime").innerHTML =
+        (min > 9 ? min : "0" + min) + ":" +
+        (sec > 9 ? sec : "0" + sec) + "." +
+        (ms > 99 ? ms : ms > 9 ? "0" + ms : "00" + ms);
+  };
+
 }
+
+
