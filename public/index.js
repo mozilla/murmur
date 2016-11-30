@@ -176,6 +176,7 @@ function displayErrorMessage(error) {
 // screens, and sets up event handlers to switch back and forth between
 // those screens until the user gets tired of making recordings.
 function initializeAndRun() {
+  var totalsess = 0;
   // Get the DOM elements for the recording and playback screens
   var recordingScreenElement = document.querySelector('#record-screen');
 
@@ -227,6 +228,11 @@ function initializeAndRun() {
         if (response.status !== 200) {
           displayErrorMessage(ERR_UPLOAD_FAILED + ' ' + response.status + ' ' +
                               response.statusText);
+        } else {
+          // sum one
+          totalsess++;
+          document.querySelector('#submitted').innerHTML = "Submitted Recordings this Session: " + totalsess;
+
         }
       })
       .catch(function() {
