@@ -25,7 +25,6 @@ body {
   background-repeat: no-repeat;
   border: 1px solid #AAA;
   color: #000;
-  font-size: inherit;
   padding: 5px 30px 5px 5px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -44,17 +43,10 @@ hr {
     max-width: 480px;         /* no wider than 480px, narrower on phones */
 }
 
-.title1{
+.title{
     font-weight: 600;
-    color: rgb(87,88,90);
     font-size: large;
-    margin: 30px auto 20px auto; /* center body within window */
-}
-
-.title2{
-    font-weight: 600;
     color: rgb(87,88,90);
-    font-size: large;
     margin: 30px auto 20px auto; /* center body within window */
 }
 
@@ -64,18 +56,8 @@ p {
     margin: 0px 0px 30px 0px; /* center body within window */
 }
 
-label{
-    color: rgb(115,116,117);
-    font-weight: 200;
-}
-
-#consent-screen button {
-    font-size: 18px;
-}
-
 #error-message {
     margin: 15px;
-    font-style: italic;
 }
 
 table {
@@ -93,8 +75,6 @@ table td {
 }
 
 #sentence {
-    font-size: larger;
-    font-weight: 400;
     margin: 30px 0 0 5%;
     text-align: center;
     width: 90%;
@@ -115,13 +95,8 @@ table td {
 }
 
 #playback-screen button {
-    font-size: 30px;
     margin: 10px;
     padding: 10px;
-}
-
-#playback-screen button span.small {
-    font-size: 18px;
 }
 
 #levels {
@@ -139,6 +114,7 @@ table td {
     margin: 30px 0px 0px 20%;
     float: left;
     font-size: xx-large;
+    font-family: 'Fira Sans';
 }
 
 .screen {
@@ -167,13 +143,8 @@ a div span {
   padding: 5px 5px 5px 0px;
 }
 
-#consent-screen button {
-    font-size: 18px;
-}
-
 #error-message {
     margin: 15px;
-    font-style: italic;
 }
 
 table {
@@ -206,6 +177,12 @@ table td {
   cursor: pointer;
 }
 
+
+.btn:hover{
+    color: white;
+    background-color: rgb(101,206,245);
+}
+
 .btn {
     display: inline-block;
     vertical-align: top;
@@ -218,7 +195,7 @@ table td {
 }
 
 .btn.continuedata {
-    margin: 10px 20% auto;
+    margin: 10px 12% auto;
     padding: 10px 30px 10px 30px;
     text-align: right;
     float: right;
@@ -320,18 +297,18 @@ a:visited {
  <div id="main_div">
     <div id="consent-screen" class="screen" hidden>
 
-      <div class="title1">Welcome to Project VoiceBank!</div>
+      <div class="title">Welcome to Project VoiceBank!</div>
       <p>Project VoiceBank allows the community to contribute with their own speech
       to build open source corpora in different languages.
       </p>
 
-      <div class="title2">Terms of Agreement</div>
+      <div class="title">Terms of Agreement</div>
       <p>
         This website is used by Mozilla engineering to collect speech samples to
       test and train our speech recognition engine and develop or improve other new
       products or services. We may also share these voice samples with third parties who are researching topics related to speech recognition or speech synthesis.
-
-         <p> By clicking the "I agree" button below, you are agreeing to donate audio recordings of your voice and to place them in the public domain. This means that you agree to waive all rights to the recordings worldwide under copyright and database law, including moral and publicity rights and all related and neighboring rights.
+<br><br>
+          By clicking the "I agree" button below, you are agreeing to donate audio recordings of your voice and to place them in the public domain. This means that you agree to waive all rights to the recordings worldwide under copyright and database law, including moral and publicity rights and all related and neighboring rights.
       </p>
 
       <div id="agree" class="btn">I Agree</div>
@@ -339,14 +316,14 @@ a:visited {
     </div>
 
     <div id="data-screen" class="screen" hidden>
-      <div id="header" class="title1">
+      <div id="header" class="title">
         A Little About You.
       </div>
       <p>Please fill out the information below to help categorize your voice.</p>
       <div id="tbldata2">
           <div>
               <span>Gender</span>
-              <span>Date of Birth</span>
+              <span>Age</span>
           </div>
           <div>
             <span>
@@ -354,6 +331,7 @@ a:visited {
                     <option>Select one</option>
                     <option>Male</option>
                     <option>Female</option>
+                    <option>Other</option>
               </select>
             </span>
             <span>
@@ -370,7 +348,7 @@ a:visited {
             </span>
           </div>
           <div>
-            <span>Primary Language</span>
+            <span>Native Language</span>
             <span>Secondary Language (optional)</span>
           </div>
           <div>
@@ -384,16 +362,17 @@ a:visited {
           <div>
               <span></span>
               <span>
-                <div id="datasubmit" class="btn continuedata">Continue</div>
             </span>
           </div>
         </div>
+        <div id="datasubmit" class="btn continuedata">Continue</div>
+
         <span id="errorfill" hidden>Please, fill the form before continue.</span>
     </div>
 
     <div id="record-screen" class="screen" hidden>
       <div id="instructions">
-        <div class="title1">Record your Voice </div>
+        <div class="title">Record your Voice </div>
           <p>To save your voice, press 'Record' and read aloud the sentence below. When
           finished, press the 'Submit' button to save and move onto the next sentence.</p>
       </div>
