@@ -104,7 +104,7 @@ function getUserInfo(){
     dataScreen.hidden = false;
     document.querySelector("#datasubmit").onclick = function() {
       // validate that all controls are selected
-      var controls = ["#langs1", "#langs2", "#gender", "#age"];
+      var controls = ["#langs1", "#gender", "#age"];
       for (var ctl in controls){
           if (document.querySelector(controls[ctl]).selectedIndex <= 0) {
             document.querySelector("#errorfill").hidden = false;
