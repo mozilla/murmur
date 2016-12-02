@@ -2,19 +2,71 @@
 <head>
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
   <meta charset="utf-8" />
-  <title>Murmur</title>
+  <title>Voice Bank</title>
+  <link rel="stylesheet" href="fira.css">
   <script defer src="index.js"></script>
   <style>
+
 body {
-    font-size: 18px;
-    font-family: sans-serif;
-    max-width: 480px;         /* no wider than 480px, narrower on phones */
-    margin: 20px auto 0 auto; /* center body within window */
-    text-align: center;       /* center text within the body */
+  margin: 0px 00px 0px 0px;
+  font-family: 'Fira Sans';
 }
 
-.screen p {
-    margin: 8px;
+.soflow {
+  -webkit-appearance: button;
+  -webkit-border-radius: 2px;
+  -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+  -webkit-padding-end: 20px;
+  -webkit-padding-start: 2px;
+  -webkit-user-select: none;
+  -moz-appearance: none;
+  background-image: url(imgs/15xvbd5.png);
+  background-position: 97% center;
+  background-repeat: no-repeat;
+  border: 1px solid #AAA;
+  color: #000;
+  font-size: inherit;
+  padding: 5px 30px 5px 5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 80%;
+  text-align: left;
+}
+
+hr {
+    background-color: rgb(147,149,152);
+    height: 1px;
+    border: 0;
+}
+
+#main_div {
+    margin: 20px auto 0 auto; /* center body within window */
+    max-width: 480px;         /* no wider than 480px, narrower on phones */
+}
+
+.title1{
+    font-weight: 600;
+    color: rgb(87,88,90);
+    font-size: large;
+    margin: 30px auto 20px auto; /* center body within window */
+}
+
+.title2{
+    font-weight: 600;
+    color: rgb(87,88,90);
+    font-size: large;
+    margin: 30px auto 20px auto; /* center body within window */
+}
+
+p {
+    color: rgb(115,116,117);
+    font-weight: 200;
+    margin: 0px 0px 30px 0px; /* center body within window */
+}
+
+label{
+    color: rgb(115,116,117);
+    font-weight: 200;
 }
 
 #consent-screen button {
@@ -40,58 +92,163 @@ table td {
     border: solid black 1px;
 }
 
-#instructions {
+#sentence {
+    font-size: larger;
+    font-weight: 400;
+    margin: 30px 0 0 5%;
+    text-align: center;
+    width: 90%;
+}
+
+#sensitivity {
+    width: 80%;
+    display: none;
+}
+
+#player-box{
+    border: solid 1px;
+    border-color: rgb(200,201,204);
+}
+
+#player {
+    display: none;
+}
+
+#playback-screen button {
+    font-size: 30px;
     margin: 10px;
+    padding: 10px;
+}
+
+#playback-screen button span.small {
+    font-size: 18px;
+}
+
+#levels {
+    width: 100px;
+    height: 100px;
+}
+
+#divlevels {
+    width: 100px;
+    height: 100px;
+    margin: 20px 60%;
+}
+
+#elapsedtime {
+    margin: 30px 0px 0px 20%;
+    float: left;
+    font-size: xx-large;
+}
+
+.screen {
+    margin: 0 10px 0 10px;
+}
+
+a div span {
+  display: table-cell;
+  padding: 5px 5px 5px 0px;
+  width: 1%;
+}
+
+
+#tbldata2 {
+  display: table;
+  width: 100%;
+  font-weight: 300;
+}
+
+#tbldata2 div  {
+    display: table-row;
+}
+
+#tbldata2 div span {
+  display: table-cell;
+  padding: 5px 5px 5px 0px;
+}
+
+#consent-screen button {
+    font-size: 18px;
+}
+
+#error-message {
+    margin: 15px;
     font-style: italic;
 }
 
-#sentence {
-    font-size: larger;
-    font-weight: bold;
-    margin: 20px;
+table {
+    border-collapse:collapse;
+    margin:10px auto 0 auto;
+}
+table th {
+    background-color: #ccc;
+    padding: 3px;
+    border: solid black 1px;
+}
+table td {
+    padding: 3px 5px 3px 5px;
+    border: solid black 1px;
 }
 
-#recordButton {
-    font-size:larger;
-    font-weight: bold;
-    box-sizing: border-box;
-    width: 100px;
-    height: 100px;
-    margin: auto;
-    background-color: red;
-    border: solid black 4px;
-    border-radius: 50%;
-    transition: 100ms linear border-radius;
-}
-#recordButton:after {
-    content:'Record';
-    line-height:95px;
+#container {
+  width:100%;
+  text-align:center;
 }
 
-#recordButton.disabled {
-    opacity: 0.5;
+#container > div {
+  width: calc(100% / 6);
+  display: inline-block;
+  vertical-align: top;
+  border: solid rgb(200,201,204) 1px;
+  text-align:center;
+  margin:2%;
+  padding: 10px 20px 10px 20px;
+  cursor: pointer;
 }
 
-body.recording #recordButton {
-    border-radius: 10px;
-    width:85px;
-    height:85px;
-}
-body.recording #recordButton:after {
-    content:'Stop';
-    line-height: 80px;
+.btn {
+    display: inline-block;
+    vertical-align: top;
+    border: solid rgb(101,206,245) 1px;
+    text-align:center;
+    color: rgb(101,206,245);
+    padding: 10px 30px 10px 30px;
+    margin: 0 35%;
+    cursor: pointer;
 }
 
-#recording-indicator {
+.btn.continuedata {
+    margin: 10px 20% auto;
+    padding: 10px 30px 10px 30px;
+    text-align: right;
+    float: right;
+}
+
+.recording-indicator {
     display:inline-block;
     width:15px;
     height:15px;
     background:red;
     border-radius:50%;
     opacity:0;
+    float:left;
 }
 
-body.recording #recording-indicator {
+
+.stopped-indicator {
+    display:inline-block;
+    width:15px;
+    height:15px;
+    background: rgb(190,29,44);
+    border-radius:50%;
+    float:left;
+}
+
+#errorfill{
+    color: red;
+}
+
+body.recording .recording-indicator {
     animation-name:blink;
     animation-duration:1s;
     animation-iteration-count:infinite;
@@ -109,104 +266,199 @@ body.recording #recording-indicator {
     }
 }
 
-#sensitivity {
-    width: 80%;
+#lblplay {
+    margin: 0 0 0 10px;
+    float:left;
+    color: rgb(188,189,192);
 }
 
-#levels {
-    width: 300px;
-    height: 150px;
-    margin: 0 auto 0 auto;
+#lblsubmit {
+    margin: 0 0 0 4px;
+    float:right;
+    color: rgb(188,189,192);
 }
 
-#player {
+#lblrecord {
+    margin: 0 0 0 10px;
+    float:left;
+    color: rgb(190,29,44);
+}
+
+.wordmark {
+    width: auto;
+    height: 50px;
     margin: 10px;
 }
 
-#playback-screen button {
-    font-size: 30px;
-    margin: 10px;
-    padding: 10px;
+.footeritem{
+    float: right;
+    margin: 10px 10px 10px 10px;
+    font-weight: 400;
+    font-size: small;
 }
 
-#playback-screen button span.small {
-    font-size: 18px;
+.footer{
+    position:fixed;
+    bottom:0;
+    height:auto;
+    width:100%;
 }
-  </style>
+
+a{
+    text-decoration: none;
+    color: black;
+}
+
+a:visited {
+    color: black;
+}
+</style>
 </head>
 <body>
-  <div id="consent-screen" class="screen" hidden>
-    <h1>Murmur</h1>
-    <p>
-      This website is used by Mozilla engineering to collect speech
-      samples to test and train our speech recognition engine. It
-      collects only speech recordings and does not associate them with
-      any personally identifying information.
-    </p>
+ <div ><img class="wordmark" src="imgs/wordmark_project-voicebank-gray.png"></div>
+ <hr/>
+ <div id="main_div">
+    <div id="consent-screen" class="screen" hidden>
 
-    <p>
-      By clicking the "I agree" button below, you are agreeing to
-      donate audio recordings of your voice and to 
-      <a href="https://creativecommons.org/publicdomain/zero/1.0/">
-        place them in the public domain</a>. This means that you agree
-      to <em>waive all rights to the recordings worldwide under copyright
-      and database law, including moral and publicity rights and all
-      related and neighboring rights</em>.
-    </p>
+      <div class="title1">Welcome to Project VoiceBank!</div>
+      <p>Project VoiceBank allows the community to contribute with their own speech
+      to build open source corpora in different languages.
+      </p>
 
-    <button id="disagree">I Disagree</button>
-    <button id="agree">I Agree</button>
-  </div>
+      <div class="title2">Terms of Agreement</div>
+      <p>
+        This website is used by Mozilla engineering to collect speech samples to
+      test and train our speech recognition engine and develop or improve other new
+      products or services. We may also share these voice samples with third parties who are researching topics related to speech recognition or speech synthesis.
 
-  <div id="record-screen" class="screen" hidden>
-    <div id="instructions">
-      <div id="recording-indicator"></div>
-      Tap the record button and read this sentence:
+         <p> By clicking the "I agree" button below, you are agreeing to donate audio recordings of your voice and to place them in the public domain. This means that you agree to waive all rights to the recordings worldwide under copyright and database law, including moral and publicity rights and all related and neighboring rights.
+      </p>
+
+      <div id="agree" class="btn">I Agree</div>
+
     </div>
-    <div id="sentence"></div>
-    <div id="recordButton" class="stopped"></div>
-    <br/>
-    <canvas id="levels" width=300 height=150></canvas>
-    <p>
-      Microphone sensitivity:
-    </p>
-    <input id="sensitivity" type="range" min="1" max="100"></input>
-  </div>
 
-  <div id="playback-screen" class="screen" hidden>
-    <audio id="player" controls autoplay></audio><br/>
-    <button id="upload">
-      Upload audio<br/>
-      <span class="small">and place it in the public domain</span>
-    </button>
-    <br/>
-    <button id="discard">
-      Discard audio<br/>
-      <span class="small">and record another sentence</span>
-    </button>
-  </div>
+    <div id="data-screen" class="screen" hidden>
+      <div id="header" class="title1">
+        A Little About You.
+      </div>
+      <p>Please fill out the information below to help categorize your voice.</p>
+      <div id="tbldata2">
+          <div>
+              <span>Gender</span>
+              <span>Date of Birth</span>
+          </div>
+          <div>
+            <span>
+              <select class="soflow" id="gender">
+                    <option>Select one</option>
+                    <option>Male</option>
+                    <option>Female</option>
+              </select>
+            </span>
+            <span>
+              <select class="soflow" id="age">
+                    <option>Select one</option>
+                    <option>14-18</option>
+                    <option>19-25</option>
+                    <option>26-30</option>
+                    <option>31-40</option>
+                    <option>41-50</option>
+                    <option>51-60</option>
+                    <option>+60</option>
+              </select>
+            </span>
+          </div>
+          <div>
+            <span>Primary Language</span>
+            <span>Secondary Language (optional)</span>
+          </div>
+          <div>
+            <span>
+              <select class="soflow" id="langs1"></select>
+            </span>
+            <span>
+              <select class="soflow" id="langs2"></select>
+            </span>
+          </div>
+          <div>
+              <span></span>
+              <span>
+                <div id="datasubmit" class="btn continuedata">Continue</div>
+            </span>
+          </div>
+        </div>
+        <span id="errorfill" hidden>Please, fill the form before continue.</span>
+    </div>
 
-  <div id="error-screen" class="screen" hidden>
-    <h1>Murmur</h1>
-    <p>
-      This application cannot run because:
-    </p>
+    <div id="record-screen" class="screen" hidden>
+      <div id="instructions">
+        <div class="title1">Record your Voice </div>
+          <p>To save your voice, press 'Record' and read aloud the sentence below. When
+          finished, press the 'Submit' button to save and move onto the next sentence.</p>
+      </div>
+      <div id="player-box">
+        <br>
+        <div id="container">
+          <div id="recordButton">
+              <div id="divanim" class="stopped-indicator"></div>
+              <div id="lblrecord"> Record </div></div>
+          <div id="playButton">
+              <div style="float:left">
+                <img id="playimg" src="imgs/Triangle-09-off.png">
+              </div>
+              <div id="lblplay">Play</div>
+          </div>
+          <div id="uploadButton">
+              <div style="float:left;">
+                <img id="submitimg" src="imgs/CheckMark-off.png">
+              </div>
+              <div id="lblsubmit">Submit</div>
+          </div>
+        </div>
+        <div id="sentence" ></div>
+        <div>
+          <div id="elapsedtime"> 00:00.0s </div>
+          <div id="divlevels"> <canvas hidden id="levels" width=500 height=100></canvas></div>
+        </div>
 
-    <p id="error-message"><p>
+      </div><br>
+      <p class="submitted" id="submitted">Submitted Recordings this Session: 0</p>
+      <!-- hidden stuff -->
+      <input id="sensitivity" type="range" min="1" max="200"></input>
+      <audio id="player" controls></audio><br/>
+    </div>
+    <div id="error-screen" class="screen" hidden>
+      <h1>VoiceBank</h1>
+      <p>
+        This application cannot run because:
+      </p>
 
-    <p id="error-reload">
-      <button onclick="location.reload()"><b>Reload</b></button>
-      if you'd like to try again
-    </p>
-    <p id="error-supported" hidden>
-      Please try one of these supported browsers:
-      <table>
-        <tr><th>Platform<th>Browser</tr>
-        <tr><td>Desktop<td>Firefox, Chrome</tr>
-        <tr><td>Android<td>Firefox</tr>
-        <tr><td>iPhone, iPad<td>Not supported</tr>
-      </table>
-    </p>
-  </div>
+      <p id="error-message"><p>
+
+      <p id="error-reload">
+        <button onclick="location.reload()"><b>Reload</b></button>
+        if you'd like to try again
+      </p>
+      <p id="error-supported" hidden>
+        Please try one of these supported browsers:
+        <table>
+          <tr><th>Platform<th>Browser</tr>
+          <tr><td>Desktop<td>Firefox, Chrome</tr>
+          <tr><td>Android<td>Firefox</tr>
+          <tr><td>iPhone, iPad<td>Not supported</tr>
+        </table>
+      </p>
+    </div>
+ </div>
+ <div class="footer">
+     <hr/>
+     <div class="footeritem"><a href="https://www.mozilla.org/en-US/about/legal/" target="_blank">Legal</a></div>
+     <div class="footeritem"><a href="https://www.mozilla.org/en-US/privacy/websites/" target="_blank">Privacy</a></div>
+     <div class="footeritem"><a href="https://www.mozilla.org/en-US/about/legal/terms/mozilla/" target="_blank">Terms</a></div>
+     <div class="footeritem"><a href="https://www.mozilla.org/en-US/privacy/websites/#cookies" target="_blank">Cookies</a></div>
+
+ </div>
+
 </body>
 </html>

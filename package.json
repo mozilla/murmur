@@ -10,12 +10,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "David Flanagan",
+  "author": "David Flanagan and Andre Natal",
   "license": "MPL-2.0",
   "dependencies": {
     "body-parser": "^1.15.0",
     "express": "^4.13.4",
     "letsencrypt-express": "^1.1.5",
-    "spdy": "^3.3.2"
+    "spdy": "^3.3.2",
+    "sqlite3": "^3.1.8"
   }
 }

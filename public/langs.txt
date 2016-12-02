@@ -1,0 +1,346 @@
+<option>  Select one </option>
+<option>  Abaza </option>
+<option>  Abenaki   </option>
+<option>  Abkhaz </option>
+<option>  Adangme </option>
+<option>  Adangbe </option>
+<option>  Adyghe </option>
+<option>  Afar </option>
+<option>  Afrikaans </option>
+<option>  Ainu </option>
+<option>  Ajië </option>
+<option>  Akan </option>
+<option>  Albanian </option>
+<option>  Aleut </option>
+<option>  Amdang </option>
+<option>  Amharic </option>
+<option>  Ancient Egyptian Language   </option>
+<option>  Angika </option>
+<option>  Apache </option>
+<option>  Arabic </option>
+<option>  Aragonese </option>
+<option>  Aramaic </option>
+<option>  Arapaho </option>
+<option>  Armenian </option>
+<option>  Armenian (Eastern) </option>
+<option>  Armenian (Western) </option>
+<option>  Arrernte </option>
+<option>  Assamese </option>
+<option>  Asturian </option>
+<option>  Avar </option>
+<option>  Avestan </option>
+<option>  Aymara </option>
+<option>  Äynu </option>
+<option>  Azerbaijani </option>
+<option>  Baga   </option>
+<option>  Bai </option>
+<option>  Balinese </option>
+<option>  Balti </option>
+<option>  Bambara </option>
+<option>  Bantu   </option>
+<option>  Basa  </option>
+<option>  Bashkir </option>
+<option>  Basque </option>
+<option>  Bassa </option>
+<option>  Batak </option>
+<option>  Belarusian </option>
+<option>  Bemba </option>
+<option>  Bengali </option>
+<option>  Berber </option>
+<option>  Berta </option>
+<option>  Bhojpuri </option>
+<option>  Bislama </option>
+<option>  Blackfoot </option>
+<option>  Bodo </option>
+<option>  Bosnian </option>
+<option>  Brazilian Portuguese </option>
+<option>  Breton </option>
+<option>  Buginese </option>
+<option>  Buhid </option>
+<option>  Bulgarian </option>
+<option>  Burmese </option>
+<option>  Cahuilla </option>
+<option>  Cantonese </option>
+<option>  Carrier </option>
+<option>  Catalan </option>
+<option>  Cayuga </option>
+<option>  Cebuano </option>
+<option>  Chamorro </option>
+<option>  Chechen </option>
+<option>  Cherokee </option>
+<option>  Chewa </option>
+<option>  Cheyenne </option>
+<option>  Chhattisgarhi </option>
+<option>  Chickasaw </option>
+<option>  Chinese </option>
+<option>  Chinese (Classical) </option>
+<option>  Chipewyan </option>
+<option>  Choctaw </option>
+<option>  Chuvash </option>
+<option>  Cimbrian </option>
+<option>  Comanche </option>
+<option>  Coptic </option>
+<option>  Cornish </option>
+<option>  Corsican </option>
+<option>  Cree </option>
+<option>  Croatian </option>
+<option>  Cupeño   </option>
+<option>  Czech </option>
+<option>  Dakhini </option>
+<option>  Dakota </option>
+<option>  Dalecarlian </option>
+<option>  Danish </option>
+<option>  Dargwa </option>
+<option>  Dari </option>
+<option>  Dhivehi </option>
+<option>  Drehu </option>
+<option>  Dungan </option>
+<option>  Dutch </option>
+<option>  Dzongkha </option>
+<option>  Egyptian Arabic   </option>
+<option>  English </option>
+<option>  Erzya </option>
+<option>  Esperanto </option>
+<option>  Estonian </option>
+<option>  Evenki </option>
+<option>  Ewe </option>
+<option>  Eyak </option>
+<option>  Faroese </option>
+<option>  Fijian </option>
+<option>  Fiji Hindi </option>
+<option>  Filipino </option>
+<option>  Finnish </option>
+<option>  Fon </option>
+<option>  French </option>
+<option>  Frisian (North) </option>
+<option>  Frisian (Saterland) </option>
+<option>  Frisian (West) </option>
+<option>  Friulian </option>
+<option>  Fula </option>
+<option>  Fur </option>
+<option>  Ga </option>
+<option>  Galician </option>
+<option>  Gan </option>
+<option>  Ge'ez </option>
+<option>  Georgian </option>
+<option>  German </option>
+<option>  Gikuyu </option>
+<option>  Gilbertese </option>
+<option>  Godoberi </option>
+<option>  Greek </option>
+<option>  Greenlandic </option>
+<option>  Guaraní </option>
+<option>  Gujarati </option>
+<option>  Gumuz </option>
+<option>  Gurung </option>
+<option>  Gwich'in </option>
+<option>  Haida </option>
+<option>  Hainanese </option>
+<option>  Haitian Creole  </option>
+<option>  Hakka </option>
+<option>  Harari </option>
+<option>  Hausa </option>
+<option>  Hawaiian </option>
+<option>  Hebrew </option>
+<option>  Herero </option>
+<option>  Himba </option>
+<option>  Hindi </option>
+<option>  Hindustani </option>
+<option>  Hiri Motu </option>
+<option>  Hmong </option>
+<option>  Hopi </option>
+<option>  Hungarian </option>
+<option>  Icelandic </option>
+<option>  Ido </option>
+<option>  Igbo </option>
+<option>  Ik </option>
+<option>  Ilocano </option>
+<option>  Indonesian </option>
+<option>  Ingush </option>
+<option>  Interlingua </option>
+<option>  Inuktitut </option>
+<option>  Inupiat </option>
+<option>  Irish </option>
+<option>  Isthmus Nahuatl </option>
+<option>  Italian </option>
+<option>  Japanese </option>
+<option>  Javanese </option>
+<option>  Judaeo  </option>
+<option>  Jutish </option>
+<option>  Jèrriais </option>
+<option>  Kabardian </option>
+<option>  Kabyle </option>
+<option>  Kaingang </option>
+<option>  Kannada </option>
+<option>  Kanuri </option>
+<option>  Karakalpak </option>
+<option>  Karamojong </option>
+<option>  Karelian </option>
+<option>  Kashmiri </option>
+<option>  Kashubian </option>
+<option>  Kazakh </option>
+<option>  Kelantanese Malay </option>
+<option>  Kendeje </option>
+<option>  Khakas </option>
+<option>  Khmer </option>
+<option>  Khoekhoe </option>
+<option>  Khowar </option>
+<option>  Kinyarwanda </option>
+<option>  Kiribati </option>
+<option>  Konkani </option>
+<option>  Korean </option>
+<option>  Kuliak </option>
+<option>  Kumyk </option>
+<option>  Kurdish </option>
+<option>  Kutchi </option>
+<option>  Kwadi   </option>
+<option>  Ladakhi </option>
+<option>  Ladin </option>
+<option>  Lakota </option>
+<option>  Lao </option>
+<option>  Latin language </option>
+<option>  Latvian </option>
+<option>  Laz </option>
+<option>  Leonese </option>
+<option>  Lepcha </option>
+<option>  Limbu </option>
+<option>  Limburgish </option>
+<option>  Lingala </option>
+<option>  Lisu </option>
+<option>  Lithuanian </option>
+<option>  Livonian </option>
+<option>  Low German </option>
+<option>  Low Prussian Dialect </option>
+<option>  Luba  </option>
+<option>  Luganda </option>
+<option>  Luiseño </option>
+<option>  Luo </option>
+<option>  Luri </option>
+<option>  Luxembourgish </option>
+<option>  Maasai </option>
+<option>  Macedonian </option>
+<option>  Magahi </option>
+<option>  Magar </option>
+<option>  Maithili </option>
+<option>  Makassarese </option>
+<option>  Malay </option>
+<option>  Malayalam </option>
+<option>  Maltese </option>
+<option>  Manchu </option>
+<option>  Mandarin </option>
+<option>  Manx </option>
+<option>  Marathi </option>
+<option>  Marshallese </option>
+<option>  Masalit </option>
+<option>  Meitei </option>
+<option>  Miami  </option>
+<option>  Michoacán Nahuatl </option>
+<option>  Min </option>
+<option>  Min Bei </option>
+<option>  Min Dong </option>
+<option>  Min Nan </option>
+<option>  Min Zhong </option>
+<option>  Mon </option>
+<option>  Mongolian </option>
+<option>  Muscogee Creek </option>
+<option>  Musgu </option>
+<option>  Muskum   </option>
+<option>  Māori </option>
+<option>  Nagumi   </option>
+<option>  Nahuatl </option>
+<option>  Navajo </option>
+<option>  Ndyuka </option>
+<option>  Nepal Bhasa </option>
+<option>  Nepali </option>
+<option>  Ngbee   </option>
+<option>  Northern Thai </option>
+<option>  Norwegian </option>
+<option>  Nuosu </option>
+<option>  Nyangia </option>
+<option>  Occidental </option>
+<option>  Occitan </option>
+<option>  Ojibwe </option>
+<option>  Okinawan Japanese </option>
+<option>  Old Church Slavonic   </option>
+<option>  Old English   </option>
+<option>  Omotik   </option>
+<option>  Odia </option>
+<option>  Pahari </option>
+<option>  Palula </option>
+<option>  Pattani Malay </option>
+<option>  Persian </option>
+<option>  Phoenician   </option>
+<option>  Piman </option>
+<option>  Pipil </option>
+<option>  Pitjantjatjara </option>
+<option>  Plautdietsch </option>
+<option>  Polish </option>
+<option>  Portuguese </option>
+<option>  Punjabi language </option>
+<option>  Pu  </option>
+<option>  Raga </option>
+<option>  Rajasthani </option>
+<option>  Romani </option>
+<option>  Romanian </option>
+<option>  Romansh </option>
+<option>  Russian </option>
+<option>  Rusyn </option>
+<option>  Ruthenian  </option>
+<option>  Sami </option>
+<option>  Samoan  Gagana Sāmoa  </option>
+<option>  Sanskrit </option>
+<option>  Sardinian </option>
+<option>  Saurashtra </option>
+<option>  Scots </option>
+<option>  Scottish Gaelic </option>
+<option>  Serbian </option>
+<option>  Shan </option>
+<option>  Shanghaiese </option>
+<option>  Sherpa language </option>
+<option>  Shona </option>
+<option>  Sicilian </option>
+<option>  Sikkimese </option>
+<option>  Sindhi </option>
+<option>  Sinhala </option>
+<option>  Slovak </option>
+<option>  Slovene </option>
+<option>  Somali </option>
+<option>  Sotho </option>
+<option>  Spanish </option>
+<option>  Stellingwarfs </option>
+<option>  Sundanese </option>
+<option>  Swahili </option>
+<option>  Swedish </option>
+<option>  Swiss German </option>
+<option>  Sylheti </option>
+<option>  Tagalog </option>
+<option>  Tahitian </option>
+<option>  Turkish </option>
+<option>  Tai Dam </option>
+<option>  Tai Khün </option>
+<option>  Tai Lü </option>
+<option>  Tai Nüa </option>
+<option>  Tamang </option>
+<option>  Tamil </option>
+<option>  Tangut   </option>
+<option>  Tatar </option>
+<option>  Telugu </option>
+<option>  Tepes </option>
+<option>  Teribe </option>
+<option>  Tetum </option>
+<option>  Thai </option>
+<option>  Tibetan </option>
+<option>  Tigrinya </option>
+<option>  Tok Pisin  </option>
+<option>  Tongan </option>
+<option>  Tongva   </option>
+<option>  Tsez </option>
+<option>  Tswana </option>
+<option>  Tuareg </option>
+<option>  Turkish </option>
+<option>  Tulu language  </option>
+<option>  Uduk </option>
+<option>  Ukrainian </option>
+<option>  Urdu </option>
+<option>  Uyghur </option>
+<option>  Yoruba </option>
