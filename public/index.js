@@ -28,10 +28,14 @@ var ERR_NO_MIC = 'You did not allow this website to use the microphone. ' +
     'The website needs the microphone to record your voice.';
 var ERR_UPLOAD_FAILED = 'Uploading your recording to the server failed. ' +
     'This may be a temporary problem. Please try again.';
+var ERR_DATA_FAILED = 'Submitting your profile data failed. ' +
+    'This may be a temporary problem. Please try again.';
 
 // This is the program startup sequence.
 checkPlatformSupport()
   .then(getConsent)
+  .then(getLangs)
+  .then(populatelangs)
   .then(getUserInfo)
   .then(getMicrophone)
   .then(rememberMicrophone)
@@ -98,10 +102,38 @@ function getUserInfo(){
     // Otherwise, display the data screen and wait for a response
     var dataScreen = document.querySelector('#data-screen');
     dataScreen.hidden = false;
-    document.querySelector('#datasubmit').onclick = function() {
-      localStorage.getUserInfoGiven = true;  // Remember profile was already sent
-      dataScreen.hidden = true;
-      resolve();
+    document.querySelector("#datasubmit").onclick = function() {
+      // validate that all controls are selected
+      var controls = ["#langs1", "#langs2", "#gender", "#age"];
+      for (var ctl in controls){
+          if (document.querySelector(controls[ctl]).selectedIndex <= 0) {
+            document.querySelector("#errorfill").hidden = false;
+            return;
+          }
+      }
+
+      var headers = new Headers();
+      headers.append("gender", document.querySelector('#gender').selectedIndex);
+      headers.append("age", document.querySelector('#age').selectedIndex);
+      headers.append("langs1", document.querySelector('#langs1').selectedIndex);
+      headers.append("langs2", document.querySelector('#langs2').selectedIndex);
+
+        fetch('/data', { method: 'GET', headers: headers})
+      .then(function(response) {
+          if (response.status !== 200) {
+              displayErrorMessage(ERR_DATA_FAILED + ' ' + response.status + ' ' +
+                  response.statusText);
+          } else {
+              response.text().then(function(text) {
+                  localStorage.getUserInfoGiven = JSON.parse(text).uid;
+              });
+              dataScreen.hidden = true;
+              resolve();
+          }
+      })
+      .catch(function() {
+          displayErrorMessage(ERR_UPLOAD_FAILED);
+      });
     };
   });
 }
@@ -139,8 +171,12 @@ function rememberMicrophone(stream) {
 
 // Fetch the sentences.json file that tell us what sentences
 // to ask the user to read
-function getSentences() {
-  return fetch('sentences.json').then(function(r) { return r.json(); });
+function getSentences() { return fetch('sentences.json').then(function(r) { return r.json(); }); }
+
+function getLangs(){ return fetch('langs.txt').then( function(r) { return r.text(); }); }
+
+function populatelangs(langs){
+  document.querySelector('#langs1').innerHTML = document.querySelector('#langs2').innerHTML = langs;
 }
 
 // Once we get the json file, break the keys and values into two
@@ -223,7 +259,10 @@ function initializeAndRun() {
       recording = new Blob([recording], {type:'audio/webm;codecs=opus'});
     }
 
-    fetch('/upload/' + directory, { method: 'POST', body: recording })
+    var headers = new Headers();
+    headers.append("uid", localStorage.getUserInfoGiven);
+
+    fetch('/upload/' + directory, { method: 'POST', headers, body: recording })
       .then(function(response) {
         if (response.status !== 200) {
           displayErrorMessage(ERR_UPLOAD_FAILED + ' ' + response.status + ' ' +
@@ -232,11 +271,10 @@ function initializeAndRun() {
           // sum one
           totalsess++;
           document.querySelector('#submitted').innerHTML = "Submitted Recordings this Session: " + totalsess;
-
+          recordingScreen.discards();
         }
       })
       .catch(function() {
-
         displayErrorMessage(ERR_UPLOAD_FAILED);
       });
   }
@@ -266,7 +304,12 @@ function RecordingScreen(element, microphone) {
   };
 
   this.discards = function() {
-    this.element.hidden = true;
+    element.querySelector('#playimg').src = "imgs/Triangle-09-off.png";
+    element.querySelector('#submitimg').src = "imgs/CheckMark-off.png";
+      document.querySelector('#lblplay').style.color = "rgb(188,189,192)";
+      document.querySelector('#lblsubmit').style.color = "rgb(188,189,192)";
+
+    canuploadandplay = false;
     this.recording = null;
     if (this.player.src) {
       URL.revokeObjectURL(this.player.src);
@@ -313,19 +356,7 @@ function RecordingScreen(element, microphone) {
   var recordButton = element.querySelector('#recordButton');
   var playButton = element.querySelector('#playButton');
   var uploadButton = element.querySelector('#uploadButton');
-
-  // The button responds to clicks to start and stop recording
-  recordButton.addEventListener('click', function() {
-    // Don't respond if we're disabled
-    if (recordButton.className === 'disabled')
-      return;
-    if (recording) {
-      stopRecording();
-    }
-    else {
-      startRecording();
-    }
-  });
+  var canuploadandplay = false;
 
   // How much we amplify the signal from the microphone.
   // If we've got a saved value, use that.
@@ -366,14 +397,15 @@ function RecordingScreen(element, microphone) {
       // We want to be able to record up to 60s of audio in a single blob.
       // Without this argument to start(), Chrome will call dataavailable
       // very frequently.
-      recorder.start(60000);
-      //recordButton.className = 'recording';
+      recorder.start(20000);
+      document.querySelector('#divanim').className = 'recording-indicator';
       document.body.className = 'recording';
     }
   }
 
   function stopRecording() {
     if (recording) {
+      canuploadandplay = true;
       document.querySelector('#levels').hidden = true;
       clockstop();
       recording = false;
@@ -394,8 +426,13 @@ function RecordingScreen(element, microphone) {
           recordButton.className = '';
         });
       };
-
       recorder.stop();
+
+      document.querySelector('#lblplay').style.color = "rgb(0,174,239)";
+      document.querySelector('#lblsubmit').style.color = "rgb(0,174,239)";
+      document.querySelector('#divanim').className = 'stopped-indicator';
+      element.querySelector('#playimg').src = "imgs/Triangle-09-on.png";
+      element.querySelector('#submitimg').src = "imgs/CheckMark-on.png";
     }
   }
 
@@ -458,13 +495,8 @@ function RecordingScreen(element, microphone) {
 
       // here other side
       var x_bar = i * barwidth;
-      /*
-      if (rightside) {
-        console.log('rightside');
-      } else {
-        console.log('not rightside');
-      }
-*/
+
+
       context.fillStyle = 'black';
       context.fillRect(x_bar, total,
                        barwidth, height);
@@ -480,8 +512,6 @@ function RecordingScreen(element, microphone) {
       context.fillRect(x_bar+25, inverso,
           barwidth, height+20);
 
-
-      //console.log(n, levels.height ,height,total, inverso);
     }
 
     /*
@@ -517,14 +547,30 @@ function RecordingScreen(element, microphone) {
     requestAnimationFrame(visualize);
   }
 
+  // The button responds to clicks to start and stop recording
+  recordButton.addEventListener('click', function() {
+      // Don't respond if we're disabled
+      if (recordButton.className === 'disabled')
+          return;
+      if (recording) {
+          stopRecording();
+      }
+      else {
+          startRecording();
+      }
+  });
+
   uploadButton.addEventListener('click', function() {
+    if (!canuploadandplay)
+      return;
     element.dispatchEvent(new CustomEvent('upload', {detail: this.recording}));
   }.bind(this));
 
   playButton.addEventListener('click', function() {
+    if (!canuploadandplay)
+          return;
     this.player.play();
   }.bind(this));
-
 
 // CLOCK!
   var timeBegan = null

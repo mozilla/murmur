@@ -89,6 +89,7 @@ function startServer() {
   var https = require('spdy');
   var express = require('express');
   var bodyParser = require('body-parser');
+  var sqlite3 = require('sqlite3').verbose();
 
   // Read the server configuration file. It must define
   // letsEncryptHostname and letsEncryptEmailAddress for the
@@ -101,6 +102,8 @@ function startServer() {
     console.error("Exiting");
     process.exit(1);
   }
+
+  var db = new sqlite3.Database(config.db);
 
   var lex = LEX.create({
     configDir: __dirname + '/letsencrypt.conf',
@@ -135,6 +138,7 @@ function startServer() {
 
   // This is how we handle WAV file uploads
   app.post('/upload/:dir', function(request, response) {
+    var uid = request.headers['uid'];
     var dir = request.params.dir;
     var filenumber = directoryToFileNumber[dir];
     if (filenumber !== undefined) { // Only if it is a known directory
@@ -147,7 +151,7 @@ function startServer() {
         extension = '.webm';   // Chrome gives us opus in webm
       }
 
-      var path = uploaddir + '/' + dir + '/' + filename + extension;
+      var path = uploaddir + '/' + dir + '/'  + uid  + extension;
       fs.writeFile(path, request.body, {}, function(err) {
         response.send('Thanks for your contribution!');
         if (err) {
@@ -163,6 +167,16 @@ function startServer() {
     }
   });
 
+  app.get('/data/', function(request,response) {
+      db.serialize(function() {
+          var id = Math.random() * Date.now() * (request.headers.gender + request.headers.age + request.headers.langs1 + request.headers.langs2);
+          var stmt = db.prepare("INSERT INTO usr VALUES (?,?,?,?,?)");
+          stmt.run(id, request.headers.gender, request.headers.age, request.headers.langs1, request.headers.langs2);
+          stmt.finalize();
+          response.send({ uid: id });
+      });
+  });
+
   // In test mode, just run the app over http to localhost:8000
   if (process.argv[2] === 'test') {
     app.listen(8000, function() {
@@ -176,7 +190,7 @@ function startServer() {
     res.setHeader('Location', 'https://' + req.headers.host + req.url);
     res.statusCode = 302;
     res.end('<!-- Please use https:// links instead -->');
-  })).listen(config.httpPort || 80);
+  })).listen(config.httpPort || 8080);
 
 
   // Handle HTTPs requests using LEX and the Express app defined above
