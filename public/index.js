@@ -514,21 +514,6 @@ function RecordingScreen(element, microphone) {
 
     }
 
-    /*
-    // loop again and make the top of the bars red for high volumes
-    context.fillStyle = 'red';
-    var thresholdHeight =
-        levels.height * (LOUD_THRESHOLD - MIN_DB_LEVEL) / dbRange;
-    for(var i = 0; i < n; i++) {
-      var value = frequencyBins[i+skip];
-      if (value > LOUD_THRESHOLD) {
-        var height = levels.height * (value - MIN_DB_LEVEL) / dbRange;
-        context.fillRect(i * barwidth, levels.height - height,
-                         barwidth, height - thresholdHeight);
-      }
-    }
-*/
-
     // If we are currently recording, then test to see if the user has
     // been silent for long enough that we should stop recording
     if (recording) {
