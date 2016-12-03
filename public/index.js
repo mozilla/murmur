@@ -367,7 +367,7 @@ function RecordingScreen(element, microphone) {
   if (!microphoneGain) {
     // Need to turn the sensitivity way up on Android
     if (navigator.userAgent.indexOf('ndroid') !== -1) {
-      microphoneGain = 6;
+      microphoneGain = 5;
     }
     else {
       microphoneGain = 2;
@@ -404,7 +404,7 @@ function RecordingScreen(element, microphone) {
   }
 
   function stopRecording() {
-    if (recording) {
+      if (recording) {
       canuploadandplay = true;
       document.querySelector('#levels').hidden = true;
       clockstop();
