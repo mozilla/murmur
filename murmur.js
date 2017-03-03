@@ -150,7 +150,7 @@ function startServer() {
       if (request.headers['content-type'].startsWith('audio/webm')) {
         extension = '.webm';   // Chrome gives us opus in webm
       } else if (request.headers['content-type'].startsWith('audio/mp4a')) {
-        extension = '.mp4a' // iOS gives us mp4a
+        extension = '.m4a' // iOS gives us mp4a
       }
 
       var path = uploaddir + '/' + dir + '/'  + uid  + extension;
