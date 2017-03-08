@@ -2,8 +2,6 @@ var fs = require('fs');
 
 var uploaddir = __dirname + '/uploads';  // Upload directory
 var directoryToSentence = {};            // dirname to sentence
-var directoryToFileNumber = {};          // dirname to next file number to use
-var directories = [];                    // all the directories
 
 // Here's the program:
 readConfigFile();
@@ -15,8 +13,8 @@ startServer();
  * as needed, and figures out the next file number in each directory.
  */
 function readConfigFile() {
-  var configFile = __dirname + '/sentences.txt';
-
+  var configFile = __dirname + '/screenplays.txt';
+  var totalItens = 0;
   try {
     fs.readFileSync(configFile, 'utf8')
       .trim()
@@ -26,23 +24,9 @@ function readConfigFile() {
         if (trimmed === '' || trimmed[0] === '#') {
           return;  // ignore blanks and comments
         }
-        var match = trimmed.match(/^(\w+)\s+(.*)$/);
-        if (!match) {
-          console.warn('Ignoring mis-formatted line in sentences.txt:',
-                       line);
-          return;
-        }
-        var directory = match[1];
-        var sentence = match[2];
 
-        if (directory in directoryToSentence) {
-          console.warn('Ignoring line in sentences.txt because directory',
-                       'is already in use:', line);
-          return;
-        }
-
-        directoryToSentence[directory] = sentence;
-        directories.push(directory);
+        directoryToSentence[totalItens++] = trimmed;
+        //directories.push(directory);
       });
   }
   catch(e) {
@@ -51,36 +35,11 @@ function readConfigFile() {
     process.exit(1);
   }
 
-  if (directories.length === 0) {
+  if (directoryToSentence.length === 0) {
     console.error('No sentences defined in sentences.txt. Exiting.');
     process.exit(1);
   }
 
-  directories.forEach(function(directory) {
-    try {
-      var dirname = uploaddir + '/' + directory;
-      if (fs.existsSync(dirname)) {
-        // Directory exists. Go find out what the next filenumber is
-        var filenumbers =
-            fs.readdirSync(dirname)                         // all files
-            .filter(function(f) { return f.match(/^\d+/);}) // starting with #
-            .map(function(f) { return parseInt(f); })       // convert to number
-            .sort(function(a,b) { return b - a; });         // largest first
-        directoryToFileNumber[directory] = (filenumbers[0] + 1) || 0;
-      }
-      else {
-        // Directory does not exist. Create it and start with file 0
-        fs.mkdirSync(dirname);
-        directoryToFileNumber[directory] = 0;
-      }
-    }
-    catch(e) {
-      // This can happen, for example, if dirname is a file instead of
-      // a directory or if there is a directory that is not readable
-      console.warn('Error verifying directory', dirname,
-                   'Ignoring that directory', e);
-    }
-  });
 }
 
 function startServer() {
@@ -138,35 +97,37 @@ function startServer() {
 
   // This is how we handle WAV file uploads
   app.post('/upload/:dir', function(request, response) {
-    var uid = request.headers['uid'];
+    // user id
+    var uid = request.headers.uid
+    // the folder we should write is the sentence hash
     var dir = request.params.dir;
-    var filenumber = directoryToFileNumber[dir];
-    if (filenumber !== undefined) { // Only if it is a known directory
-      directoryToFileNumber[dir] = filenumber + 1;
-      var filename = String(filenumber);
-      while(filename.length < 4) filename = '0' + filename;
+    // the sentence itself
+    var sentence = request.headers.sentence
 
-      var extension = '.ogg';  // Firefox gives us opus in ogg
-      if (request.headers['content-type'].startsWith('audio/webm')) {
-        extension = '.webm';   // Chrome gives us opus in webm
-      } else if (request.headers['content-type'].startsWith('audio/mp4a')) {
-        extension = '.m4a' // iOS gives us mp4a
+    var extension = '.ogg';  // Firefox gives us opus in ogg
+    if (request.headers['content-type'].startsWith('audio/webm')) {
+      extension = '.webm';   // Chrome gives us opus in webm
+    } else if (request.headers['content-type'].startsWith('audio/mp4a')) {
+      extension = '.m4a'; // iOS gives us mp4a
+    }
+
+    // if the folder does not exist, we create it
+    var folder = uploaddir + "/" + dir + "/";
+    if (!fs.existsSync(folder)) {
+      fs.mkdirSync(folder);
+      fs.writeFileSync(folder + '/sentence.txt', sentence);
+    }
+
+    var path = folder  + uid  + extension;
+    fs.writeFile(path, request.body, {}, function(err) {
+      response.send('Thanks for your contribution!');
+      if (err) {
+        console.warn(err);
       }
-
-      var path = uploaddir + '/' + dir + '/'  + uid  + extension;
-      fs.writeFile(path, request.body, {}, function(err) {
-        response.send('Thanks for your contribution!');
-        if (err) {
-          console.warn(err);
-        }
-        else {
-          console.log('wrote file:', path);
-        }
-      });
-    }
-    else {
-      response.status(404).send('Bad directory');
-    }
+      else {
+        console.log('wrote file:', path);
+      }
+    });
   });
 
   app.get('/data/', function(request,response) {
