@@ -140,6 +140,15 @@ function startServer() {
       });
   });
 
+    app.get('/data/ios', function(request,response) {
+        db.serialize(function() {
+            var stmt = db.prepare("INSERT INTO usr VALUES (?,?,?,?,?)");
+            stmt.run(request.headers.id, request.headers.gender, request.headers.age, request.headers.langs1, request.headers.langs2);
+            stmt.finalize();
+            response.send({ uid: request.headers.id });
+        });
+    });
+
   // In test mode, just run the app over http to localhost:8000
   if (process.argv[2] === 'test') {
     app.listen(8000, function() {
